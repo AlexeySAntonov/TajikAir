@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#EE047ADF</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="blueSky">@color/colorPrimaryDark</color>
+    <color name="searchLabel">#C8D2DC</color>
+    <color name="actionColor">#EEFF7338</color>
+    <color name="actionColorSemiTransparent">#80FF7338</color>
+    <color name="actionTextColor">#E0E6ED</color>
+    <color name="dotColor">#885C546A</color>
+    <color name="dotBorder">#5C546A</color>
+</resources>

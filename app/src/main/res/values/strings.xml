@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TajikAir</string>
+
+    <string name="departure_search_hint">Departure…</string>
+    <string name="destination_search_hint">Destination…</string>
+    <string name="from_label">From</string>
+    <string name="to_label">To</string>
+    <string name="search_button_text">Search</string>
+</resources>
