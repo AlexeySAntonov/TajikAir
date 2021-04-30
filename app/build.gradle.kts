@@ -8,6 +8,15 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            keyAlias = System.getenv()["TAJIK_AIR_KEY_ALIAS"] ?: project.property("TAJIK_AIR_KEY_ALIAS") as String
+            keyPassword = System.getenv()["TAJIK_AIR_KEY_PASSWORD"] ?: project.property("TAJIK_AIR_KEY_PASSWORD") as String
+            storeFile = file(System.getenv()["TAJIK_AIR_KEYSTORE_PATH"] ?: project.property("TAJIK_AIR_KEYSTORE_PATH") as String)
+            storePassword = System.getenv()["TAJIK_AIR_KEYSTORE_PASSWORD"] ?: project.property("TAJIK_AIR_KEYSTORE_PASSWORD") as String
+        }
+    }
+
     compileSdkVersion(28)
 
     defaultConfig {
@@ -21,8 +30,14 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
+        }
+        getByName("debug") {
+            isMinifyEnabled = false
+            isDebuggable = true
+//            applicationIdSuffix = ".debug"
         }
     }
     compileOptions {
