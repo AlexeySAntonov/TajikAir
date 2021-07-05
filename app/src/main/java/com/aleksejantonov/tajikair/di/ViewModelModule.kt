@@ -1,7 +1,7 @@
 package com.aleksejantonov.tajikair.di
 
 import androidx.lifecycle.ViewModel
-import com.aleksejantonov.tajikair.ui.base.ViewModelKey
+import com.aleksejantonov.tajikair.di.qualifiers.ViewModelKey
 import com.aleksejantonov.tajikair.ui.main.MainViewModel
 import com.aleksejantonov.tajikair.ui.map.MapViewModel
 import dagger.Binds

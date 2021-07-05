@@ -1,92 +1,101 @@
 package com.aleksejantonov.tajikair.ui.main
 
+import androidx.lifecycle.viewModelScope
 import com.aleksejantonov.tajikair.api.entity.City
+import com.aleksejantonov.tajikair.di.qualifiers.DispatcherDefault
 import com.aleksejantonov.tajikair.model.CitiesRepository
 import com.aleksejantonov.tajikair.navigation.AppRouter
 import com.aleksejantonov.tajikair.ui.Screens.*
 import com.aleksejantonov.tajikair.ui.base.BaseViewModel
 import com.aleksejantonov.tajikair.util.cityStub
-import com.jakewharton.rxbinding2.InitialValueObservable
-import com.jakewharton.rxrelay2.BehaviorRelay
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.Observables
-import io.reactivex.rxkotlin.subscribeBy
-import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
   private val router: AppRouter,
   private val repository: CitiesRepository,
+  @DispatcherDefault private val dispatcherDefault: CoroutineDispatcher,
 ) : BaseViewModel() {
 
-    private val departureLocationRelay = BehaviorRelay.createDefault(cityStub())
-    private val destinationLocationRelay = BehaviorRelay.createDefault(cityStub())
+  private val _departureLocationData = MutableStateFlow(cityStub())
+  val departureLocationData: StateFlow<City> = _departureLocationData
 
-    fun onFirstViewAttach() {
-        Observables
-            .combineLatest(
-                departureLocationRelay,
-                destinationLocationRelay
-            ) { depCity, desCity -> depCity.fullName.isNotBlank() && desCity.fullName.isNotBlank() }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy {
-//                viewState.enableSearchButton(it)
-            }
-            .keepUntilDestroy()
+  private val _destinationLocationData = MutableStateFlow(cityStub())
+  val destinationLocationData: StateFlow<City> = _destinationLocationData
 
-        departureLocationRelay
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy {
-//                viewState.setDepartureSearchText(it.fullName)
-            }
-            .keepUntilDestroy()
+  private val _enableSearchData = MutableSharedFlow<Boolean>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+  val enableSearchData: SharedFlow<Boolean> = _enableSearchData
 
-        destinationLocationRelay
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy {
-//                viewState.setDestinationsSearchText(it.fullName)
-            }
-            .keepUntilDestroy()
+  private val _departureQueryData = MutableSharedFlow<String>()
+  private val _destinationQueryData = MutableSharedFlow<String>()
+
+  val departureSuggestionsData = MutableSharedFlow<List<LocationSuggestion>>()
+  val destinationSuggestionsData = MutableSharedFlow<List<LocationSuggestion>>()
+
+  init {
+    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+      combine(
+        _departureLocationData,
+        _destinationLocationData
+      ) { depCity, desCity ->
+        depCity.fullName.isNotBlank() && desCity.fullName.isNotBlank()
+      }.collect {
+        _enableSearchData.emit(it)
+      }
     }
 
-    fun departureChanged(city: City?) = departureLocationRelay.accept(requireNotNull(city))
-    fun destinationChanged(city: City?) = destinationLocationRelay.accept(requireNotNull(city))
-
-    fun listenDepartureQueries(observable: InitialValueObservable<CharSequence>) {
-        observable
-            .debounce(400, TimeUnit.MILLISECONDS)
-            .switchMapSingle { query -> repository.searchCities(query.toString()) }
-            .map { cities -> cities.map { LocationSuggestion(it) } }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onNext = {
-//                    viewState::applyDepartureResults
-                },
-                onError = Timber::e
-            )
-            .keepUntilDestroy()
+    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+      _departureQueryData
+        .debounce(400L)
+        .flatMapLatest { query -> repository.searchCities(query) }
+        .map { cities -> cities.map { LocationSuggestion(it) } }
+        .collect { departureSuggestionsData.emit(it) }
     }
 
-    fun listenDestinationQueries(observable: InitialValueObservable<CharSequence>) {
-        observable
-            .debounce(400, TimeUnit.MILLISECONDS)
-            .switchMapSingle { query -> repository.searchCities(query.toString()) }
-            .map { cities -> cities.map { LocationSuggestion(it) } }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onNext = {
-//                    viewState::applyDestinationResults
-                },
-                onError = Timber::e
-            )
-            .keepUntilDestroy()
+    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+      _destinationQueryData
+        .debounce(400L)
+        .flatMapLatest { query -> repository.searchCities(query) }
+        .map { cities -> cities.map { LocationSuggestion(it) } }
+        .collect { destinationSuggestionsData.emit(it) }
     }
 
-    fun onSearchClick() {
-        router.forward(
-            MAP_FRAGMENT,
-            departureLocationRelay.value to destinationLocationRelay.value
-        )
+  }
+
+  fun departureQueryChanged(query: String) {
+    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+      _departureQueryData.emit(query)
     }
+  }
+
+  fun destinationQueryChanged(query: String) {
+    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+      _destinationQueryData.emit(query)
+    }
+  }
+
+  fun departureChanged(city: City?) {
+    city?.let {
+      viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+        _departureLocationData.emit(it)
+      }
+    }
+  }
+  fun destinationChanged(city: City?) {
+    city?.let {
+      viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+        _destinationLocationData.emit(it)
+      }
+    }
+  }
+
+  fun onSearchClick() {
+    router.forward(
+      MAP_FRAGMENT,
+      _departureLocationData.value to _destinationLocationData.value
+    )
+  }
 }

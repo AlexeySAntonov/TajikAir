@@ -12,6 +12,7 @@ import javax.inject.Singleton
   modules = [
     AppModule::class,
     ViewModelModule::class,
+    DispatchersModule::class,
   ]
 )
 interface AppComponent : ViewModelFactoryProvider {

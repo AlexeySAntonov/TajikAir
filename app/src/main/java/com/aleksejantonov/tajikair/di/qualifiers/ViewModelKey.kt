@@ -1,4 +1,4 @@
-package com.aleksejantonov.tajikair.ui.base
+package com.aleksejantonov.tajikair.di.qualifiers
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

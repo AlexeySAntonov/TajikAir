@@ -4,16 +4,14 @@ object Versions {
     const val minSdk = 21
 
     const val kotlin = "1.5.10"
+    const val coroutines = "1.5.0"
     const val retrofit = "2.9.0"
     const val dagger = "2.37"
-    const val rxAndroid = "2.1.1"
-    const val rxKotlin = "2.3.0"
-    const val rxBinding = "2.0.0"
 }
 
 object Libs {
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
-    const val ktx = "androidx.core:core-ktx:1.5.0"
+    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val appCompat = "androidx.appcompat:appcompat:1.3.0"
     const val material = "com.google.android.material:material:1.4.0"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.4"
@@ -22,11 +20,6 @@ object Libs {
     const val retrofit2 = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofit2ConverterGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
     const val retrofit2RxAdapter = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit}"
-
-    const val rxAndroid = "io.reactivex.rxjava2:rxandroid:${Versions.rxAndroid}"
-    const val rxRelay = "com.jakewharton.rxrelay2:rxrelay:${Versions.rxAndroid}"
-    const val rxKotlin = "io.reactivex.rxjava2:rxkotlin:${Versions.rxKotlin}"
-    const val rxBinding = "com.jakewharton.rxbinding2:rxbinding-design-kotlin:${Versions.rxBinding}"
 
     const val maps = "com.google.android.gms:play-services-maps:17.0.1"
     const val mapsUtils = "com.google.maps.android:android-maps-utils:0.5"

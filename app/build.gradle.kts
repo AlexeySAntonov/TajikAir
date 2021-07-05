@@ -47,16 +47,11 @@ android {
 
 dependencies {
     implementation(Libs.kotlin)
+    implementation(Libs.coroutines)
     implementation(Libs.appCompat)
     implementation(Libs.material)
     implementation(Libs.constraintLayout)
     implementation(Libs.fragmentKtx)
-
-    // Rx
-    implementation(Libs.rxAndroid)
-    implementation(Libs.rxRelay)
-    implementation(Libs.rxKotlin)
-    implementation(Libs.rxBinding)
 
     // Retrofit
     implementation(Libs.retrofit2)
