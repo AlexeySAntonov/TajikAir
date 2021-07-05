@@ -3,10 +3,10 @@ package com.aleksejantonov.tajikair.ui.base
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.aleksejantonov.tajikair.androidx.moxy.MvpAppCompatFragment
+import androidx.fragment.app.Fragment
 import com.aleksejantonov.tajikair.util.inflate
 
-abstract class BaseFragment : MvpAppCompatFragment() {
+abstract class BaseFragment : Fragment() {
 
     abstract val layoutId: Int
 

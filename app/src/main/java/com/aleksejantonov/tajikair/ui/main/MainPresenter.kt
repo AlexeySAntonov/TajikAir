@@ -5,7 +5,6 @@ import com.aleksejantonov.tajikair.sl.SL
 import com.aleksejantonov.tajikair.ui.Screens.*
 import com.aleksejantonov.tajikair.ui.base.BasePresenter
 import com.aleksejantonov.tajikair.util.cityStub
-import com.arellomobile.mvp.InjectViewState
 import com.jakewharton.rxbinding2.InitialValueObservable
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,7 +13,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-@InjectViewState
 class MainPresenter : BasePresenter<MainView>() {
 
     private val router = SL.componentManager().appComponent.router
@@ -23,24 +21,30 @@ class MainPresenter : BasePresenter<MainView>() {
     private val departureLocationRelay = BehaviorRelay.createDefault(cityStub())
     private val destinationLocationRelay = BehaviorRelay.createDefault(cityStub())
 
-    override fun onFirstViewAttach() {
+    fun onFirstViewAttach() {
         Observables
             .combineLatest(
                 departureLocationRelay,
                 destinationLocationRelay
             ) { depCity, desCity -> depCity.fullName.isNotBlank() && desCity.fullName.isNotBlank() }
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy { viewState.enableSearchButton(it) }
+            .subscribeBy {
+//                viewState.enableSearchButton(it)
+            }
             .keepUntilDestroy()
 
         departureLocationRelay
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy { viewState.setDepartureSearchText(it.fullName) }
+            .subscribeBy {
+//                viewState.setDepartureSearchText(it.fullName)
+            }
             .keepUntilDestroy()
 
         destinationLocationRelay
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy { viewState.setDestinationsSearchText(it.fullName) }
+            .subscribeBy {
+//                viewState.setDestinationsSearchText(it.fullName)
+            }
             .keepUntilDestroy()
     }
 
@@ -54,7 +58,9 @@ class MainPresenter : BasePresenter<MainView>() {
             .map { cities -> cities.map { LocationSuggestion(it) } }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = viewState::applyDepartureResults,
+                onNext = {
+//                    viewState::applyDepartureResults
+                },
                 onError = Timber::e
             )
             .keepUntilDestroy()
@@ -67,7 +73,9 @@ class MainPresenter : BasePresenter<MainView>() {
             .map { cities -> cities.map { LocationSuggestion(it) } }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = viewState::applyDestinationResults,
+                onNext = {
+//                    viewState::applyDestinationResults
+                },
                 onError = Timber::e
             )
             .keepUntilDestroy()

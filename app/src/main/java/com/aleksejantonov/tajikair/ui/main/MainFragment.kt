@@ -9,14 +9,13 @@ import com.aleksejantonov.tajikair.util.initOnClearSearchListener
 import com.aleksejantonov.tajikair.util.initOnSearchListener
 import com.aleksejantonov.tajikair.util.initSuggestionsHeightChangeListener
 import com.aleksejantonov.tajikair.util.queryChanges
-import com.arellomobile.mvp.presenter.InjectPresenter
 import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainFragment : BaseFragment(), MainView {
 
     override val layoutId = R.layout.fragment_main
 
-    @InjectPresenter
+//    @InjectPresenter
     lateinit var presenter: MainPresenter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

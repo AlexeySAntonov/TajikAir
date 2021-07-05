@@ -4,7 +4,6 @@ import com.aleksejantonov.tajikair.api.YasenHotelService
 import com.aleksejantonov.tajikair.api.config.Constants
 import com.aleksejantonov.tajikair.model.CitiesRepository
 import com.aleksejantonov.tajikair.navigation.AppRouter
-import com.facebook.stetho.okhttp3.StethoInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -14,7 +13,6 @@ class AppComponent {
 
     private val client by lazy {
         OkHttpClient.Builder()
-            .addNetworkInterceptor(StethoInterceptor())
             .build()
     }
 

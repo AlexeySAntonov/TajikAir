@@ -12,7 +12,6 @@ import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
 import com.aleksejantonov.tajikair.util.getCurvePlaneAnimator
 import com.aleksejantonov.tajikair.util.getPivotPoints
 import com.aleksejantonov.tajikair.util.renderRoute
-import com.arellomobile.mvp.presenter.InjectPresenter
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.android.synthetic.main.fragment_map.*
 
@@ -22,14 +21,13 @@ class MapFragment : BaseFragment(), MapView {
     private lateinit var planeRenderer: PlaneMarkerRenderer
     private lateinit var dotRenderer: DotMarkerRenderer
 
-    private val depCity by lazy { arguments?.getParcelable(DEPARTURE) as City }
-    private val desCity by lazy { arguments?.getParcelable(DESTINATION) as City }
+    private val depCity by lazy { requireNotNull(arguments?.getParcelable(DEPARTURE)) as City }
+    private val desCity by lazy { requireNotNull( arguments?.getParcelable(DESTINATION)) as City }
 
     private var animator: Animator? = null
 
     override val layoutId = R.layout.fragment_map
 
-    @InjectPresenter
     lateinit var presenter: MapPresenter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
