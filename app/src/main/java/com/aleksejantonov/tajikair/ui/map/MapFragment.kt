@@ -55,8 +55,8 @@ class MapFragment : BaseFragment() {
         planeRenderer = PlaneMarkerRenderer(it, map, ClusterManager(it, map))
         dotRenderer = DotMarkerRenderer(it, map, ClusterManager(it, map))
 
-        renderCities(listOf(depCity, desCity))
         renderRoute()
+        renderCities(listOf(depCity, desCity))
         startPlaneAnimation()
       }
     }

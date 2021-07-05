@@ -26,8 +26,11 @@ class DotMarkerRenderer(
     }
 
     override fun onBeforeClusterItemRendered(item: DotMarker, markerOptions: MarkerOptions) {
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerGenerator.makeIcon()))
-        markerOptions.anchor(0.5f,0.5f)
+        markerOptions.apply {
+            icon(BitmapDescriptorFactory.fromBitmap(markerGenerator.makeIcon()))
+            anchor(0.5f,0.5f)
+            zIndex(1f)
+        }
     }
 
     fun render(dots: List<LatLng>) {

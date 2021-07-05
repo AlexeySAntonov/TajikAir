@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-
-    <TextView
-        android:id="@+id/iata"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/background_iata"
-        android:fontFamily="sans-serif-medium"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="DME" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:id="@+id/iata"
+    android:layout_width="116dp"
+    android:layout_height="44dp"
+    android:background="@drawable/background_iata"
+    android:fontFamily="sans-serif-medium"
+    android:gravity="center"
+    android:includeFontPadding="false"
+    android:paddingStart="12dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="4dp"
+    android:textColor="@android:color/white"
+    android:textSize="22sp"
+    tools:text="DME" />

@@ -32,7 +32,7 @@ class PlaneMarkerRenderer(
         markerOptions.apply {
             icon(BitmapDescriptorFactory.fromBitmap(markerGenerator.makeIcon()))
             anchor(0.5f, 0.5f)
-            zIndex(1f)
+            zIndex(3f)
         }
 
     }

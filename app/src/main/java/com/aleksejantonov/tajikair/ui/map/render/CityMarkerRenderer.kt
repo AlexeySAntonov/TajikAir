@@ -33,8 +33,11 @@ class CityMarkerRenderer(
 
     override fun onBeforeClusterItemRendered(item: CityMarker, markerOptions: MarkerOptions) {
         iataText?.text = item.snippet
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerGenerator.makeIcon()))
-        markerOptions.anchor(0.5f, 0.5f)
+        markerOptions.apply {
+            icon(BitmapDescriptorFactory.fromBitmap(markerGenerator.makeIcon()))
+            anchor(0.5f, 0.5f)
+            zIndex(2f)
+        }
     }
 
     fun render(cities: List<City>) {

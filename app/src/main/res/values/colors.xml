@@ -13,7 +13,7 @@
     <color name="appOrange">#FF7338</color>
     <color name="semiTransparent">#42000000</color>
     <color name="semiTransparentWhite">#88FFFFFF</color>
-    <color name="semiTransparentOrange">#88FF7338</color>
+    <color name="semiTransparentYellow">#BBfccb58</color>
     <color name="searchLabel">#C8D2DC</color>
     <color name="dotColor">#885C546A</color>
     <color name="dotBorder">#5C546A</color>
