@@ -1,9 +1,10 @@
 package com.aleksejantonov.tajikair.ui.main
 
 import com.aleksejantonov.tajikair.api.entity.City
-import com.aleksejantonov.tajikair.sl.SL
+import com.aleksejantonov.tajikair.model.CitiesRepository
+import com.aleksejantonov.tajikair.navigation.AppRouter
 import com.aleksejantonov.tajikair.ui.Screens.*
-import com.aleksejantonov.tajikair.ui.base.BasePresenter
+import com.aleksejantonov.tajikair.ui.base.BaseViewModel
 import com.aleksejantonov.tajikair.util.cityStub
 import com.jakewharton.rxbinding2.InitialValueObservable
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -12,11 +13,12 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.subscribeBy
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class MainPresenter : BasePresenter<MainView>() {
-
-    private val router = SL.componentManager().appComponent.router
-    private val repository = SL.componentManager().appComponent.citiesRepository
+class MainViewModel @Inject constructor(
+  private val router: AppRouter,
+  private val repository: CitiesRepository,
+) : BaseViewModel() {
 
     private val departureLocationRelay = BehaviorRelay.createDefault(cityStub())
     private val destinationLocationRelay = BehaviorRelay.createDefault(cityStub())

@@ -10,10 +10,10 @@ plugins {
 android {
     signingConfigs {
         create("release") {
-            keyAlias = System.getenv()["TAJIK_AIR_KEY_ALIAS"] ?: project.property("TAJIK_AIR_KEY_ALIAS") as String
-            keyPassword = System.getenv()["TAJIK_AIR_KEY_PASSWORD"] ?: project.property("TAJIK_AIR_KEY_PASSWORD") as String
-            storeFile = file(System.getenv()["TAJIK_AIR_KEYSTORE_PATH"] ?: project.property("TAJIK_AIR_KEYSTORE_PATH") as String)
-            storePassword = System.getenv()["TAJIK_AIR_KEYSTORE_PASSWORD"] ?: project.property("TAJIK_AIR_KEYSTORE_PASSWORD") as String
+            keyAlias = System.getenv()[KEY_ALIAS] ?: project.property(KEY_ALIAS) as String
+            keyPassword = System.getenv()[KEY_PASSWORD] ?: project.property(KEY_PASSWORD) as String
+            storeFile = file(System.getenv()[KEYSTORE_PATH] ?: project.property(KEYSTORE_PATH) as String)
+            storePassword = System.getenv()[KEYSTORE_PASSWORD] ?: project.property(KEYSTORE_PASSWORD) as String
         }
     }
 
@@ -50,6 +50,7 @@ dependencies {
     implementation(Libs.appCompat)
     implementation(Libs.material)
     implementation(Libs.constraintLayout)
+    implementation(Libs.fragmentKtx)
 
     // Rx
     implementation(Libs.rxAndroid)
@@ -68,6 +69,10 @@ dependencies {
     // Map
     implementation(Libs.maps)
     implementation(Libs.mapsUtils)
+
+    // Dagger
+    implementation(Libs.dagger)
+    kapt(Libs.daggerCompiler)
 
     // Log
     implementation(Libs.timber)

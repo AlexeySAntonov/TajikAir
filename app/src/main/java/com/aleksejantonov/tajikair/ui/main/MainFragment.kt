@@ -2,7 +2,9 @@ package com.aleksejantonov.tajikair.ui.main
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import com.aleksejantonov.tajikair.R
+import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
 import com.aleksejantonov.tajikair.util.initDefaultFocusChangeListener
 import com.aleksejantonov.tajikair.util.initOnClearSearchListener
@@ -11,19 +13,16 @@ import com.aleksejantonov.tajikair.util.initSuggestionsHeightChangeListener
 import com.aleksejantonov.tajikair.util.queryChanges
 import kotlinx.android.synthetic.main.fragment_main.*
 
-class MainFragment : BaseFragment(), MainView {
+class MainFragment : BaseFragment(R.layout.fragment_main), MainView {
 
-    override val layoutId = R.layout.fragment_main
-
-//    @InjectPresenter
-    lateinit var presenter: MainPresenter
+    private val viewModel by viewModels<MainViewModel> { DI.appComponent.viewModelFactory() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initDeparture()
         initDestination()
 
-        search.setOnClickListener { presenter.onSearchClick() }
+        search.setOnClickListener { viewModel.onSearchClick() }
     }
 
     override fun setDepartureSearchText(text: String) {
@@ -49,20 +48,20 @@ class MainFragment : BaseFragment(), MainView {
 
     private fun initDeparture() {
         with(departureSearch) {
-            presenter.listenDepartureQueries(queryChanges())
-            initDefaultFocusChangeListener(presenter::departureChanged)
-            initOnSearchListener(presenter::departureChanged)
+            viewModel.listenDepartureQueries(queryChanges())
+            initDefaultFocusChangeListener(viewModel::departureChanged)
+            initOnSearchListener(viewModel::departureChanged)
             initSuggestionsHeightChangeListener(destinationLabel, destinationSearch)
-            initOnClearSearchListener(presenter::departureChanged)
+            initOnClearSearchListener(viewModel::departureChanged)
         }
     }
 
     private fun initDestination() {
         with(destinationSearch) {
-            presenter.listenDestinationQueries(queryChanges())
-            initDefaultFocusChangeListener(presenter::destinationChanged)
-            initOnSearchListener(presenter::destinationChanged)
-            initOnClearSearchListener(presenter::destinationChanged)
+            viewModel.listenDestinationQueries(queryChanges())
+            initDefaultFocusChangeListener(viewModel::destinationChanged)
+            initOnSearchListener(viewModel::destinationChanged)
+            initOnClearSearchListener(viewModel::destinationChanged)
         }
     }
 

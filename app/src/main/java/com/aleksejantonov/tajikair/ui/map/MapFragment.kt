@@ -3,8 +3,10 @@ package com.aleksejantonov.tajikair.ui.map
 import android.animation.Animator
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import com.aleksejantonov.tajikair.R
 import com.aleksejantonov.tajikair.api.entity.City
+import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
 import com.aleksejantonov.tajikair.ui.map.render.CityMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.DotMarkerRenderer
@@ -15,7 +17,9 @@ import com.aleksejantonov.tajikair.util.renderRoute
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.android.synthetic.main.fragment_map.*
 
-class MapFragment : BaseFragment(), MapView {
+class MapFragment : BaseFragment(R.layout.fragment_map) {
+
+    private val viewModel by viewModels<MapViewModel> { DI.appComponent.viewModelFactory() }
 
     private lateinit var cityRenderer: CityMarkerRenderer
     private lateinit var planeRenderer: PlaneMarkerRenderer
@@ -25,10 +29,6 @@ class MapFragment : BaseFragment(), MapView {
     private val desCity by lazy { requireNotNull( arguments?.getParcelable(DESTINATION)) as City }
 
     private var animator: Animator? = null
-
-    override val layoutId = R.layout.fragment_map
-
-    lateinit var presenter: MapPresenter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

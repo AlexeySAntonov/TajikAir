@@ -1,17 +1,23 @@
 package com.aleksejantonov.tajikair.navigation
 
-import com.aleksejantonov.tajikair.ui.SingleActivity
 import com.aleksejantonov.tajikair.ui.Screens
+import java.lang.ref.WeakReference
+import javax.inject.Inject
 
-class AppRouter {
-    private lateinit var navigator: MainNavigator
+class AppRouter @Inject constructor() {
 
-    fun createNavigator(activity: SingleActivity) {
-        navigator = MainNavigator(activity)
-    }
+  private var navigator: WeakReference<MainNavigator>? = null
 
-    fun openMain() = navigator.openMain()
-    fun replace(screen: Screens, data: Any? = null) = navigator.replace(screen, data)
-    fun forward(screen: Screens, data: Any? = null) = navigator.forward(screen, data)
-    fun back() = navigator.back()
+  fun attachNavigator(navigator: MainNavigator) {
+    this.navigator = WeakReference(navigator)
+  }
+
+  fun detachNavigator() {
+    this.navigator = null
+  }
+
+  fun openMain() = navigator?.get()?.openMain()
+  fun replace(screen: Screens, data: Any? = null) = navigator?.get()?.replace(screen, data)
+  fun forward(screen: Screens, data: Any? = null) = navigator?.get()?.forward(screen, data)
+  fun back() = navigator?.get()?.back()
 }
