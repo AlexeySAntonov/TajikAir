@@ -1,59 +1,67 @@
 package com.aleksejantonov.tajikair.ui.main
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.aleksejantonov.tajikair.R
+import com.aleksejantonov.tajikair.databinding.FragmentMainBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
 import com.aleksejantonov.tajikair.util.initDefaultFocusChangeListener
 import com.aleksejantonov.tajikair.util.initOnClearSearchListener
 import com.aleksejantonov.tajikair.util.initOnSearchListener
 import com.aleksejantonov.tajikair.util.initSuggestionsHeightChangeListener
-import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class MainFragment : BaseFragment(R.layout.fragment_main) {
+class MainFragment : BaseFragment() {
+
+  private val binding get() = _binding as FragmentMainBinding
 
   private val viewModel by viewModels<MainViewModel> { DI.appComponent.viewModelFactory() }
+
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    _binding = FragmentMainBinding.inflate(inflater, container, false)
+    return binding.root
+  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initDeparture()
     initDestination()
-    search.setOnClickListener { viewModel.onSearchClick() }
+    binding.search.setOnClickListener { viewModel.onSearchClick() }
     lifecycleScope.launch { viewModel.enableSearchData.collect { enableSearchButton(it) } }
   }
 
   private fun setDepartureSearchText(text: String) {
-    departureSearch.setSearchText(text)
+    safePostDelayed({ binding.departureSearch.setSearchText(text) }, 100L)
   }
 
   private fun setDestinationsSearchText(text: String) {
-    destinationSearch.setSearchText(text)
+    safePostDelayed({ binding.destinationSearch.setSearchText(text) }, 100L)
   }
 
   private fun enableSearchButton(enabled: Boolean) {
-    search.isEnabled = enabled
-    search.alpha = if (enabled) 1f else 0.5f
+    binding.search.isEnabled = enabled
+    binding.search.alpha = if (enabled) 1f else 0.5f
   }
 
   private fun applyDepartureResults(locations: List<LocationSuggestion>) {
-    departureSearch.swapSuggestions(locations)
+    binding.departureSearch.swapSuggestions(locations)
   }
 
   private fun applyDestinationResults(locations: List<LocationSuggestion>) {
-    destinationSearch.swapSuggestions(locations)
+    binding.destinationSearch.swapSuggestions(locations)
   }
 
   private fun initDeparture() {
-    with(departureSearch) {
+    with(binding.departureSearch) {
       setOnQueryChangeListener { _, newQuery -> viewModel.departureQueryChanged(newQuery) }
       initDefaultFocusChangeListener(viewModel::departureChanged)
       initOnSearchListener(viewModel::departureChanged)
-      initSuggestionsHeightChangeListener(destinationLabel, destinationSearch)
+      initSuggestionsHeightChangeListener(binding.destinationLabel, binding.destinationSearch)
       initOnClearSearchListener(viewModel::departureChanged)
       lifecycleScope.launchWhenCreated {
         viewModel.departureLocationData.collect { city ->
@@ -69,7 +77,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main) {
   }
 
   private fun initDestination() {
-    with(destinationSearch) {
+    with(binding.destinationSearch) {
       setOnQueryChangeListener { _, newQuery -> viewModel.destinationQueryChanged(newQuery) }
       initDefaultFocusChangeListener(viewModel::destinationChanged)
       initOnSearchListener(viewModel::destinationChanged)
