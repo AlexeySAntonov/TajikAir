@@ -18,11 +18,11 @@ class MainNavigator(private val fragmentManager: FragmentManager) {
     REPLACE
   }
 
-  fun openMain() = replace(MAIN_FRAGMENT)
+  fun openMain() = replace(screen = MAIN_FRAGMENT, animate = false)
 
-  fun replace(screen: Screens, data: Any? = null) = applyCommand(screen, REPLACE, data)
+  fun replace(screen: Screens, data: Any? = null, animate: Boolean = true) = applyCommand(screen, REPLACE, data, animate)
 
-  fun forward(screen: Screens, data: Any? = null) = applyCommand(screen, FORWARD, data)
+  fun forward(screen: Screens, data: Any? = null, animate: Boolean = true) = applyCommand(screen, FORWARD, data, animate)
 
   fun back() = fragmentManager.popBackStackImmediate()
 

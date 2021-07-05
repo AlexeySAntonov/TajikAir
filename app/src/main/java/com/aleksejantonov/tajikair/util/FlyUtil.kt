@@ -108,12 +108,3 @@ fun factorial(n: Int): BigInteger {
     if (n == 0) return BigInteger.ONE
     return BigInteger.valueOf(n.toLong()) * factorial(n - 1)
 }
-
-fun getXYinDegrees(map: GoogleMap): Pair<Double, Double> {
-    val projection = map.projection
-    val region = projection.visibleRegion
-    val bounds = region.latLngBounds
-    val degreesWidth = Math.abs(bounds.northeast.longitude - bounds.southwest.longitude)
-    val degreesHeight = Math.abs(bounds.northeast.latitude - bounds.southwest.latitude)
-    return degreesWidth to degreesHeight
-}
