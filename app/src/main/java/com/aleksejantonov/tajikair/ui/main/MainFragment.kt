@@ -9,10 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.aleksejantonov.tajikair.databinding.FragmentMainBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
-import com.aleksejantonov.tajikair.util.initDefaultFocusChangeListener
-import com.aleksejantonov.tajikair.util.initOnClearSearchListener
-import com.aleksejantonov.tajikair.util.initOnSearchListener
-import com.aleksejantonov.tajikair.util.initSuggestionsHeightChangeListener
+import com.aleksejantonov.tajikair.util.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -33,6 +30,14 @@ class MainFragment : BaseFragment() {
     initDestination()
     binding.search.setOnClickListener { viewModel.onSearchClick() }
     lifecycleScope.launch { viewModel.enableSearchData.collect { enableSearchButton(it) } }
+  }
+
+  override fun onStatusBarHeight(statusBarHeight: Int) {
+    binding.root.setPaddings(top = statusBarHeight)
+  }
+
+  override fun onNavigationBarHeight(navBarHeight: Int) {
+    binding.root.setPaddings(bottom = navBarHeight)
   }
 
   private fun setDepartureSearchText(text: String) {

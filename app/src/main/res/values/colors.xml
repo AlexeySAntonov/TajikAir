@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#EE047ADF</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="appColorPrimary">@color/appBlueLight</color>
+    <color name="appColorPrimaryVariant">@color/appBlue</color>
+    <color name="appColorSecondary">#FF03DAC5</color>
+    <color name="appColorSecondaryVariant">#FF018786</color>
+    <color name="appColorOnSecondary">#FF000000</color>
+    <color name="appColorOnPrimary">#FFFFFFFF</color>
 
-    <color name="blueSky">@color/colorPrimaryDark</color>
+    <color name="white">#FFFFFF</color>
+    <color name="appBlue">#4C8BFF</color>
+    <color name="appBlueLight">#67AAE7</color>
+    <color name="appOrange">#FF7338</color>
+    <color name="semiTransparent">#42000000</color>
+    <color name="semiTransparentWhite">#88FFFFFF</color>
+    <color name="semiTransparentOrange">#88FF7338</color>
     <color name="searchLabel">#C8D2DC</color>
-    <color name="actionColor">#EEFF7338</color>
-    <color name="actionColorSemiTransparent">#80FF7338</color>
-    <color name="actionTextColor">#E0E6ED</color>
     <color name="dotColor">#885C546A</color>
     <color name="dotBorder">#5C546A</color>
 </resources>
