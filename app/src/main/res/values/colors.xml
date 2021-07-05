@@ -2,8 +2,8 @@
 <resources>
     <color name="appColorPrimary">@color/appBlueLight</color>
     <color name="appColorPrimaryVariant">@color/appBlue</color>
-    <color name="appColorSecondary">#FF03DAC5</color>
-    <color name="appColorSecondaryVariant">#FF018786</color>
+    <color name="appColorSecondary">@color/appBlueLight</color>
+    <color name="appColorSecondaryVariant">@color/appBlue</color>
     <color name="appColorOnSecondary">#FF000000</color>
     <color name="appColorOnPrimary">#FFFFFFFF</color>
 
@@ -12,6 +12,7 @@
     <color name="appBlueLight">#67AAE7</color>
     <color name="appOrange">#FF7338</color>
     <color name="semiTransparent">#42000000</color>
+    <color name="semiTransparentDot">#88000000</color>
     <color name="semiTransparentWhite">#88FFFFFF</color>
     <color name="semiTransparentYellow">#BBfccb58</color>
     <color name="searchLabel">#C8D2DC</color>

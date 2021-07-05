@@ -4,10 +4,10 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.aleksejantonov.tajikair.api.entity.LatLng
-import com.aleksejantonov.tajikair.ui.map.render.DotMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng as MapsLatLng
 import java.math.BigInteger
+import kotlin.math.atan
 import kotlin.math.pow
 
 fun getPivotPoints(depLatLng: LatLng, desLatLng: LatLng): Array<Array<Double>> {
@@ -32,10 +32,10 @@ fun getPivotPoints(depLatLng: LatLng, desLatLng: LatLng): Array<Array<Double>> {
     }
 }
 
-fun renderRoute(xy: Array<Array<Double>>, renderer: DotMarkerRenderer) {
-    val dots = mutableListOf<LatLng>()
+fun getRouteCoordinates(xy: Array<Array<Double>>): List<MapsLatLng> {
+    val dots = mutableListOf<MapsLatLng>()
     var t = 0.0
-    val count = 41.0
+    val count = 40.0
     for (i in 0 until count.toInt()) {
         val b = t
         val a = 1 - b
@@ -50,11 +50,10 @@ fun renderRoute(xy: Array<Array<Double>>, renderer: DotMarkerRenderer) {
             nextY += coef * a.pow(s - 1 - j) * b.pow(j) * xy[j][1]
         }
 
-        dots.add(LatLng(nextX, nextY))
+        dots.add(MapsLatLng(nextX, nextY))
         t += (1.0 / count)
     }
-
-    renderer.render(dots)
+    return dots.apply { add(MapsLatLng(xy[xy.size - 1][0], xy[xy.size - 1][1])) }
 }
 
 fun getCurvePlaneAnimator(xy: Array<Array<Double>>, renderer: PlaneMarkerRenderer): Animator {
@@ -79,16 +78,16 @@ fun getCurvePlaneAnimator(xy: Array<Array<Double>>, renderer: PlaneMarkerRendere
 
         val angle = when {
             nextX > currentX && nextY > currentY -> {
-                Math.toDegrees(Math.atan(((nextY - currentY) / (nextX - currentX)))) - 90
+                Math.toDegrees(atan(((nextY - currentY) / (nextX - currentX)))) - 90
             }
             nextX > currentX && nextY < currentY -> {
-                Math.toDegrees(Math.atan(((nextX - currentX) / (currentY - nextY)))) - 180
+                Math.toDegrees(atan(((nextX - currentX) / (currentY - nextY)))) - 180
             }
             nextX < currentX && nextY > currentY -> {
-                Math.toDegrees(Math.atan(((currentX - nextX) / (nextY - currentY))))
+                Math.toDegrees(atan(((currentX - nextX) / (nextY - currentY))))
             }
             else                                 -> { // nextX < currentX && nextY < currentY
-                Math.toDegrees(Math.atan(((currentY - nextY) / (currentX - nextX)))) + 90
+                Math.toDegrees(atan(((currentY - nextY) / (currentX - nextX)))) + 90
             }
         }
 

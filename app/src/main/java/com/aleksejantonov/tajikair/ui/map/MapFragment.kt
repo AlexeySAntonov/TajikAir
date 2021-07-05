@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import com.aleksejantonov.tajikair.R
 import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.databinding.FragmentMapBinding
 import com.aleksejantonov.tajikair.di.DI
@@ -13,9 +15,12 @@ import com.aleksejantonov.tajikair.ui.base.BaseFragment
 import com.aleksejantonov.tajikair.ui.map.render.CityMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.DotMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
+import com.aleksejantonov.tajikair.util.dpToPx
 import com.aleksejantonov.tajikair.util.getCurvePlaneAnimator
 import com.aleksejantonov.tajikair.util.getPivotPoints
-import com.aleksejantonov.tajikair.util.renderRoute
+import com.aleksejantonov.tajikair.util.getRouteCoordinates
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
 
 class MapFragment : BaseFragment() {
@@ -55,20 +60,30 @@ class MapFragment : BaseFragment() {
         planeRenderer = PlaneMarkerRenderer(it, map, ClusterManager(it, map))
         dotRenderer = DotMarkerRenderer(it, map, ClusterManager(it, map))
 
-        renderRoute()
+        val pivotPoints = getPivotPoints(requireNotNull(depCity.latLng), requireNotNull(desCity.latLng))
+        renderRoute(map, pivotPoints)
         renderCities(listOf(depCity, desCity))
-        startPlaneAnimation()
+        startPlaneAnimation(pivotPoints)
       }
     }
   }
 
-  private fun renderRoute() {
-    val pivotPoints = getPivotPoints(requireNotNull(depCity.latLng), requireNotNull(desCity.latLng))
-    renderRoute(pivotPoints, dotRenderer)
+  private fun renderRoute(map: GoogleMap, pivotPoints: Array<Array<Double>>) {
+    val routeCoordinates = getRouteCoordinates(pivotPoints).map { LatLng(it.latitude, it.longitude) }
+    val polyline = map.addPolyline(
+      PolylineOptions()
+        .add(*routeCoordinates.toTypedArray())
+    )
+    polyline.width = dpToPx(6f).toFloat()
+    polyline.color = ContextCompat.getColor(requireNotNull(context), R.color.semiTransparentDot)
+    polyline.pattern = listOf(Dot(), Gap(dpToPx(6f).toFloat()))
   }
 
-  private fun startPlaneAnimation() {
-    val pivotPoints = getPivotPoints(requireNotNull(depCity.latLng), requireNotNull(desCity.latLng))
+  private fun renderCities(cities: List<City>) {
+    cityRenderer.render(cities)
+  }
+
+  private fun startPlaneAnimation(pivotPoints: Array<Array<Double>>) {
     animator = getCurvePlaneAnimator(pivotPoints, planeRenderer)
     animator?.start()
   }
@@ -106,10 +121,6 @@ class MapFragment : BaseFragment() {
     planeRenderer.onRemove()
     binding.mapView.onDestroy()
     super.onDestroyView()
-  }
-
-  private fun renderCities(cities: List<City>) {
-    cityRenderer.render(cities)
   }
 
   companion object {

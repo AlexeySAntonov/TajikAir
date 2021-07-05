@@ -66,6 +66,14 @@ fun Context.dpToPx(dp: Float): Int {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics).roundToInt()
 }
 
+fun Fragment.dpToPx(dp: Float): Int {
+    val wm = requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val display = wm.defaultDisplay
+    val metrics = DisplayMetrics()
+    display.getMetrics(metrics)
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics).toInt()
+}
+
 fun screenSize(context: Context): Point {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
