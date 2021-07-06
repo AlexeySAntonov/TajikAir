@@ -7,9 +7,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import com.aleksejantonov.tajikair.api.entity.City
@@ -158,5 +156,3 @@ fun FloatingSearchView.initSuggestionsHeightChangeListener(vararg dependentViews
 fun FloatingSearchView.initOnClearSearchListener(onClearAction: (City) -> Unit) {
     setOnClearSearchActionListener { onClearAction.invoke(cityStub()) }
 }
-
-fun cityStub() = City("", "", null, emptyList())

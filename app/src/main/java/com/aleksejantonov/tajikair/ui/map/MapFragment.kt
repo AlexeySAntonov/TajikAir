@@ -103,6 +103,7 @@ class MapFragment : BaseFragment() {
         duration = WHOLE_PATH_ANIMATION_DURATION
       }
       interpolator = LinearInterpolator()
+      if (hasOreo()) currentPlayTime = viewModel.currentPlayTime
       start()
     }
   }
@@ -135,6 +136,7 @@ class MapFragment : BaseFragment() {
   }
 
   override fun onDestroyView() {
+    if (hasOreo()) viewModel.currentPlayTime = animatorSet?.currentPlayTime ?: 0L
     animatorSet?.cancel()
     animatorSet = null
     planeRenderer.onRemove()

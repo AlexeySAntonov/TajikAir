@@ -5,8 +5,6 @@ import javax.inject.Inject
 
 class MapViewModel @Inject constructor() : BaseViewModel() {
 
-  override fun onCleared() {
+  var currentPlayTime: Long = 0L
 
-    super.onCleared()
-  }
 }
