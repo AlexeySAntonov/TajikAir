@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import com.aleksejantonov.tajikair.R
 import com.aleksejantonov.tajikair.api.entity.City
+import com.aleksejantonov.tajikair.api.entity.LatLng.CREATOR.toMapLatLng
 import com.aleksejantonov.tajikair.databinding.FragmentMapBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
@@ -21,7 +22,6 @@ import com.aleksejantonov.tajikair.util.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
-import com.google.maps.android.clustering.ClusterManager
 import kotlin.math.abs
 
 
@@ -55,17 +55,17 @@ class MapFragment : BaseFragment() {
         isIndoorLevelPickerEnabled = false
       }
       context?.let {
-        renderCities(map)
+        val depLatLng = requireNotNull(depCity.latLng?.toMapLatLng())
+        val destLatLng = requireNotNull(desCity.latLng?.toMapLatLng())
+        renderCities(map, depLatLng, destLatLng)
 
-        val dep = requireNotNull(depCity.latLng)
-        val dest = requireNotNull(desCity.latLng)
-        if (abs(dep.longitude - dest.longitude) <= MAX_LONGITUDE) {
+        if (abs(depLatLng.longitude - destLatLng.longitude) <= MAX_LONGITUDE) {
           // Simple route without map breaks
-          val pivotPoints = getSimpleRoutePivotPoints(dep, dest)
+          val pivotPoints = getSimpleRoutePivotPoints(depLatLng, destLatLng)
           renderRoute(map, pivotPoints)
           startPlaneAnimation(map, pivotPoints)
         } else {
-          val (pivotPointsA, pivotPointsB) = getComplexRoutePivotPoints(dep, dest)
+          val (pivotPointsA, pivotPointsB) = getComplexRoutePivotPoints(depLatLng, destLatLng)
           renderRoute(map, pivotPointsA)
           renderRoute(map, pivotPointsB)
           startPlaneAnimation(map, pivotPointsA, pivotPointsB)
@@ -85,9 +85,7 @@ class MapFragment : BaseFragment() {
     polyline.pattern = listOf(Dot(), Gap(dpToPx(6f).toFloat()))
   }
 
-  private fun renderCities(map: GoogleMap) {
-    val depLatLng = requireNotNull(depCity.latLng)
-    val destLatLng = requireNotNull(desCity.latLng)
+  private fun renderCities(map: GoogleMap, depLatLng: LatLng, destLatLng: LatLng) {
     map.addMarker(
       MarkerOptions().apply {
         icon(BitmapDescriptorFactory.fromBitmap(getCityMarkerBitmap(depCity.iata.first())))

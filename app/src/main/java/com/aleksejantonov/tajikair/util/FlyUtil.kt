@@ -3,7 +3,6 @@ package com.aleksejantonov.tajikair.util
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.location.Location
-import com.aleksejantonov.tajikair.api.entity.LatLng
 import com.google.android.gms.maps.model.LatLng as MapsLatLng
 import java.math.BigInteger
 import kotlin.math.*
@@ -12,7 +11,7 @@ const val MAX_LONGITUDE = 180.0
 const val MIN_LONGITUDE = -180.0
 const val WHOLE_PATH_ANIMATION_DURATION = 20000L
 
-fun getSimpleRoutePivotPoints(dep: LatLng, dest: LatLng): Array<Array<Double>> {
+fun getSimpleRoutePivotPoints(dep: MapsLatLng, dest: MapsLatLng): Array<Array<Double>> {
   return arrayOf(
     arrayOf(dep.latitude, dep.longitude),
     arrayOf(dep.latitude, dest.longitude),
@@ -21,7 +20,7 @@ fun getSimpleRoutePivotPoints(dep: LatLng, dest: LatLng): Array<Array<Double>> {
   )
 }
 
-fun getComplexRoutePivotPoints(dep: LatLng, dest: LatLng): Pair<Array<Array<Double>>, Array<Array<Double>>> {
+fun getComplexRoutePivotPoints(dep: MapsLatLng, dest: MapsLatLng): Pair<Array<Array<Double>>, Array<Array<Double>>> {
   val closestBreakLongitude = if (dep.longitude >= 0) MAX_LONGITUDE else MIN_LONGITUDE
   val middleLatitude = dep.latitude - (dep.latitude - dest.latitude) / 2
   val firstPath = arrayOf(
@@ -115,10 +114,10 @@ fun factorial(n: Int): BigInteger {
 }
 
 fun complexRoutePathsDurations(pivotPointsA: Array<Array<Double>>, pivotPointsB: Array<Array<Double>>): Pair<Long, Long> {
-  val aDep = LatLng(pivotPointsA[0][0], pivotPointsA[0][1])
-  val aDest = LatLng(pivotPointsA[pivotPointsA.size - 1][0],pivotPointsA[pivotPointsA.size - 1][1])
-  val bDep = LatLng(pivotPointsB[0][0], pivotPointsB[0][1])
-  val bDest = LatLng(pivotPointsB[pivotPointsB.size - 1][0],pivotPointsB[pivotPointsB.size - 1][1])
+  val aDep = MapsLatLng(pivotPointsA[0][0], pivotPointsA[0][1])
+  val aDest = MapsLatLng(pivotPointsA[pivotPointsA.size - 1][0],pivotPointsA[pivotPointsA.size - 1][1])
+  val bDep = MapsLatLng(pivotPointsB[0][0], pivotPointsB[0][1])
+  val bDest = MapsLatLng(pivotPointsB[pivotPointsB.size - 1][0],pivotPointsB[pivotPointsB.size - 1][1])
   val results = FloatArray(1)
   Location.distanceBetween(aDep.latitude, aDep.longitude, aDest.latitude, aDest.longitude, results)
   val aDistance = results[0]

@@ -65,7 +65,6 @@ dependencies {
 
   // Map
   implementation(Libs.maps)
-  implementation(Libs.mapsUtils)
 
   // Dagger
   implementation(Libs.dagger)

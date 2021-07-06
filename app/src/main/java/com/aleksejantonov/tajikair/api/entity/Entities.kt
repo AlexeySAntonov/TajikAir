@@ -3,6 +3,7 @@ package com.aleksejantonov.tajikair.api.entity
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import com.google.android.gms.maps.model.LatLng as MapLatLng
 
 data class CitiesResponse(@SerializedName("cities") val cities: List<City>)
 
@@ -55,5 +56,9 @@ data class LatLng(
     companion object CREATOR : Parcelable.Creator<LatLng> {
         override fun createFromParcel(parcel: Parcel): LatLng = LatLng(parcel)
         override fun newArray(size: Int): Array<LatLng?> = arrayOfNulls(size)
+
+        fun LatLng.toMapLatLng(): MapLatLng {
+            return MapLatLng(latitude, longitude)
+        }
     }
 }
