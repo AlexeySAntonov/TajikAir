@@ -13,7 +13,6 @@ import com.aleksejantonov.tajikair.databinding.FragmentMapBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
 import com.aleksejantonov.tajikair.ui.map.render.CityMarkerRenderer
-import com.aleksejantonov.tajikair.ui.map.render.DotMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
 import com.aleksejantonov.tajikair.util.dpToPx
 import com.aleksejantonov.tajikair.util.getCurvePlaneAnimator
@@ -31,7 +30,6 @@ class MapFragment : BaseFragment() {
 
   private lateinit var cityRenderer: CityMarkerRenderer
   private lateinit var planeRenderer: PlaneMarkerRenderer
-  private lateinit var dotRenderer: DotMarkerRenderer
 
   private val depCity by lazy { requireNotNull(arguments?.getParcelable(DEPARTURE)) as City }
   private val desCity by lazy { requireNotNull(arguments?.getParcelable(DESTINATION)) as City }
@@ -58,7 +56,6 @@ class MapFragment : BaseFragment() {
       context?.let {
         cityRenderer = CityMarkerRenderer(it, map, ClusterManager(it, map))
         planeRenderer = PlaneMarkerRenderer(it, map, ClusterManager(it, map))
-        dotRenderer = DotMarkerRenderer(it, map, ClusterManager(it, map))
 
         val pivotPoints = getPivotPoints(requireNotNull(depCity.latLng), requireNotNull(desCity.latLng))
         renderRoute(map, pivotPoints)

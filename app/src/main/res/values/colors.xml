@@ -16,6 +16,4 @@
     <color name="semiTransparentWhite">#88FFFFFF</color>
     <color name="semiTransparentYellow">#BBfccb58</color>
     <color name="searchLabel">#C8D2DC</color>
-    <color name="dotColor">#885C546A</color>
-    <color name="dotBorder">#5C546A</color>
 </resources>
