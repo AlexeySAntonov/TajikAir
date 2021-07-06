@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.location.Location
 import com.aleksejantonov.tajikair.api.entity.LatLng
-import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
 import com.google.android.gms.maps.model.LatLng as MapsLatLng
 import java.math.BigInteger
 import kotlin.math.*
@@ -65,7 +64,7 @@ fun getRouteCoordinates(xy: Array<Array<Double>>): List<MapsLatLng> {
   return dots.apply { add(destinationDot) }
 }
 
-fun getCurvePlaneAnimator(xy: Array<Array<Double>>, renderer: PlaneMarkerRenderer): Animator {
+fun getCurvePlaneAnimator(xy: Array<Array<Double>>, renderBlock: (MapsLatLng, Float) -> Unit): Animator {
   var currentX = 0.0
   var currentY = 0.0
   val animator = ValueAnimator.ofFloat(0f, 1f)
@@ -101,7 +100,7 @@ fun getCurvePlaneAnimator(xy: Array<Array<Double>>, renderer: PlaneMarkerRendere
     currentX = nextX
     currentY = nextY
 
-    renderer.render(LatLng(nextX, nextY), angle.toFloat())
+    renderBlock.invoke(MapsLatLng(nextX, nextY), angle.toFloat())
   }
   return animator
 }
