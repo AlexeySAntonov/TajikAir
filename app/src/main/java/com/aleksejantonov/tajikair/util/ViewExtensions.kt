@@ -127,13 +127,6 @@ fun View.setPaddings(left: Int? = null, top: Int? = null, right: Int? = null, bo
     )
 }
 
-fun FloatingSearchView.initDefaultFocusChangeListener(action: (City) -> Unit) {
-    setOnFocusChangeListener(object : FloatingSearchView.OnFocusChangeListener {
-        override fun onFocusCleared() = action.invoke(cityStub())
-        override fun onFocus() = Unit
-    })
-}
-
 fun FloatingSearchView.initOnSearchListener(onSuggestionClickAction: (City?) -> Unit) {
     setOnSearchListener(object : FloatingSearchView.OnSearchListener {
         override fun onSuggestionClicked(searchSuggestion: SearchSuggestion?) {

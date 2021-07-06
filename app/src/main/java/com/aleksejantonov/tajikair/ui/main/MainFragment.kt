@@ -64,7 +64,6 @@ class MainFragment : BaseFragment() {
   private fun initDeparture() {
     with(binding.departureSearch) {
       setOnQueryChangeListener { _, newQuery -> viewModel.departureQueryChanged(newQuery) }
-      initDefaultFocusChangeListener(viewModel::departureChanged)
       initOnSearchListener(viewModel::departureChanged)
       initSuggestionsHeightChangeListener(binding.destinationLabel, binding.destinationSearch)
       initOnClearSearchListener(viewModel::departureChanged)
@@ -84,7 +83,6 @@ class MainFragment : BaseFragment() {
   private fun initDestination() {
     with(binding.destinationSearch) {
       setOnQueryChangeListener { _, newQuery -> viewModel.destinationQueryChanged(newQuery) }
-      initDefaultFocusChangeListener(viewModel::destinationChanged)
       initOnSearchListener(viewModel::destinationChanged)
       initOnClearSearchListener(viewModel::destinationChanged)
       lifecycleScope.launchWhenCreated {
