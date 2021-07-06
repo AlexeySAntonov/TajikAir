@@ -2,7 +2,7 @@ package com.aleksejantonov.tajikair.util
 
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.location.Location
 import com.aleksejantonov.tajikair.api.entity.LatLng
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
 import com.google.android.gms.maps.model.LatLng as MapsLatLng
@@ -11,27 +11,15 @@ import kotlin.math.*
 
 const val MAX_LONGITUDE = 180.0
 const val MIN_LONGITUDE = -180.0
+const val WHOLE_PATH_ANIMATION_DURATION = 20000L
 
 fun getSimpleRoutePivotPoints(dep: LatLng, dest: LatLng): Array<Array<Double>> {
-  return when {
-    dep.latitude < dest.latitude
-        && dep.longitude < dest.longitude
-        || dep.latitude > dest.latitude
-        && dep.longitude > dest.longitude -> {
-      arrayOf(
-        arrayOf(dep.latitude, dep.longitude),
-        arrayOf(dest.latitude, dep.longitude),
-        arrayOf(dep.latitude, dest.longitude),
-        arrayOf(dest.latitude, dest.longitude)
-      )
-    }
-    else -> arrayOf(
-      arrayOf(dep.latitude, dep.longitude),
-      arrayOf(dep.latitude, dest.longitude),
-      arrayOf(dest.latitude, dep.longitude),
-      arrayOf(dest.latitude, dest.longitude)
-    )
-  }
+  return arrayOf(
+    arrayOf(dep.latitude, dep.longitude),
+    arrayOf(dep.latitude, dest.longitude),
+    arrayOf(dest.latitude, dep.longitude),
+    arrayOf(dest.latitude, dest.longitude)
+  )
 }
 
 fun getComplexRoutePivotPoints(dep: LatLng, dest: LatLng): Pair<Array<Array<Double>>, Array<Array<Double>>> {
@@ -81,8 +69,6 @@ fun getCurvePlaneAnimator(xy: Array<Array<Double>>, renderer: PlaneMarkerRendere
   var currentX = 0.0
   var currentY = 0.0
   val animator = ValueAnimator.ofFloat(0f, 1f)
-  animator.duration = 20000
-  animator.interpolator = AccelerateDecelerateInterpolator()
   animator.addUpdateListener {
     val b = it.animatedValue as Float
     val a = 1 - b
@@ -127,4 +113,19 @@ fun getCoef(n: Int, k: Int): Int {
 fun factorial(n: Int): BigInteger {
   if (n == 0) return BigInteger.ONE
   return BigInteger.valueOf(n.toLong()) * factorial(n - 1)
+}
+
+fun complexRoutePathsDurations(pivotPointsA: Array<Array<Double>>, pivotPointsB: Array<Array<Double>>): Pair<Long, Long> {
+  val aDep = LatLng(pivotPointsA[0][0], pivotPointsA[0][1])
+  val aDest = LatLng(pivotPointsA[pivotPointsA.size - 1][0],pivotPointsA[pivotPointsA.size - 1][1])
+  val bDep = LatLng(pivotPointsB[0][0], pivotPointsB[0][1])
+  val bDest = LatLng(pivotPointsB[pivotPointsB.size - 1][0],pivotPointsB[pivotPointsB.size - 1][1])
+  val results = FloatArray(1)
+  Location.distanceBetween(aDep.latitude, aDep.longitude, aDest.latitude, aDest.longitude, results)
+  val aDistance = results[0]
+  Location.distanceBetween(bDep.latitude, bDep.longitude, bDest.latitude, bDest.longitude, results)
+  val bDistance = results[0]
+  val aDuration = aDistance * WHOLE_PATH_ANIMATION_DURATION / (aDistance + bDistance)
+  val bDuration = WHOLE_PATH_ANIMATION_DURATION - aDuration
+  return aDuration.toLong() to bDuration.toLong()
 }

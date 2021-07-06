@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import com.aleksejantonov.tajikair.R
@@ -58,7 +59,7 @@ class MapFragment : BaseFragment() {
         renderCities(listOf(depCity, desCity))
         val dep = requireNotNull(depCity.latLng)
         val dest = requireNotNull(desCity.latLng)
-        if (abs(dep.longitude - dest.longitude) <= 180) {
+        if (abs(dep.longitude - dest.longitude) <= MAX_LONGITUDE) {
           // Simple route without map breaks
           val pivotPoints = getSimpleRoutePivotPoints(dep, dest)
           renderRoute(map, pivotPoints)
@@ -92,11 +93,16 @@ class MapFragment : BaseFragment() {
     animatorSet?.cancel()
     animatorSet = AnimatorSet().apply {
       pivotPointsB?.let {
+        val (durationA, durationB) = complexRoutePathsDurations(pivotPointsA, it)
         playSequentially(
-          getCurvePlaneAnimator(pivotPointsA, planeRenderer),
-          getCurvePlaneAnimator(it, planeRenderer)
+          getCurvePlaneAnimator(pivotPointsA, planeRenderer).apply { duration = durationA },
+          getCurvePlaneAnimator(it, planeRenderer).apply { duration = durationB }
         )
-      } ?: play(getCurvePlaneAnimator(pivotPointsA, planeRenderer))
+      } ?: run {
+        play(getCurvePlaneAnimator(pivotPointsA, planeRenderer))
+        duration = WHOLE_PATH_ANIMATION_DURATION
+      }
+      interpolator = LinearInterpolator()
       start()
     }
   }
