@@ -1,6 +1,6 @@
 package com.aleksejantonov.tajikair.ui.map
 
-import android.animation.Animator
+import android.animation.AnimatorSet
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,13 +14,11 @@ import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
 import com.aleksejantonov.tajikair.ui.map.render.CityMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
-import com.aleksejantonov.tajikair.util.dpToPx
-import com.aleksejantonov.tajikair.util.getCurvePlaneAnimator
-import com.aleksejantonov.tajikair.util.getPivotPoints
-import com.aleksejantonov.tajikair.util.getRouteCoordinates
+import com.aleksejantonov.tajikair.util.*
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
+import kotlin.math.abs
 
 class MapFragment : BaseFragment() {
 
@@ -34,7 +32,7 @@ class MapFragment : BaseFragment() {
   private val depCity by lazy { requireNotNull(arguments?.getParcelable(DEPARTURE)) as City }
   private val desCity by lazy { requireNotNull(arguments?.getParcelable(DESTINATION)) as City }
 
-  private var animator: Animator? = null
+  private var animatorSet: AnimatorSet? = null
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     _binding = FragmentMapBinding.inflate(inflater, container, false)
@@ -57,10 +55,20 @@ class MapFragment : BaseFragment() {
         cityRenderer = CityMarkerRenderer(it, map, ClusterManager(it, map))
         planeRenderer = PlaneMarkerRenderer(it, map, ClusterManager(it, map))
 
-        val pivotPoints = getPivotPoints(requireNotNull(depCity.latLng), requireNotNull(desCity.latLng))
-        renderRoute(map, pivotPoints)
         renderCities(listOf(depCity, desCity))
-        startPlaneAnimation(pivotPoints)
+        val dep = requireNotNull(depCity.latLng)
+        val dest = requireNotNull(desCity.latLng)
+        if (abs(dep.longitude - dest.longitude) <= 180) {
+          // Simple route without map breaks
+          val pivotPoints = getSimpleRoutePivotPoints(dep, dest)
+          renderRoute(map, pivotPoints)
+          startPlaneAnimation(pivotPoints)
+        } else {
+          val (pivotPointsA, pivotPointsB) = getComplexRoutePivotPoints(dep, dest)
+          renderRoute(map, pivotPointsA)
+          renderRoute(map, pivotPointsB)
+          startPlaneAnimation(pivotPointsA, pivotPointsB)
+        }
       }
     }
   }
@@ -80,13 +88,21 @@ class MapFragment : BaseFragment() {
     cityRenderer.render(cities)
   }
 
-  private fun startPlaneAnimation(pivotPoints: Array<Array<Double>>) {
-    animator = getCurvePlaneAnimator(pivotPoints, planeRenderer)
-    animator?.start()
+  private fun startPlaneAnimation(pivotPointsA: Array<Array<Double>>, pivotPointsB: Array<Array<Double>>? = null) {
+    animatorSet?.cancel()
+    animatorSet = AnimatorSet().apply {
+      pivotPointsB?.let {
+        playSequentially(
+          getCurvePlaneAnimator(pivotPointsA, planeRenderer),
+          getCurvePlaneAnimator(it, planeRenderer)
+        )
+      } ?: play(getCurvePlaneAnimator(pivotPointsA, planeRenderer))
+      start()
+    }
   }
 
   override fun onStart() {
-    animator?.resume()
+    animatorSet?.resume()
     binding.mapView.onStart()
     super.onStart()
   }
@@ -102,7 +118,7 @@ class MapFragment : BaseFragment() {
   }
 
   override fun onStop() {
-    animator?.pause()
+    animatorSet?.pause()
     binding.mapView.onStop()
     super.onStop()
   }
@@ -113,8 +129,8 @@ class MapFragment : BaseFragment() {
   }
 
   override fun onDestroyView() {
-    animator?.cancel()
-    animator = null
+    animatorSet?.cancel()
+    animatorSet = null
     planeRenderer.onRemove()
     binding.mapView.onDestroy()
     super.onDestroyView()

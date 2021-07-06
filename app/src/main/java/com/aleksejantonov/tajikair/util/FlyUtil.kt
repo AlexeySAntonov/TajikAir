@@ -5,13 +5,14 @@ import android.animation.ValueAnimator
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.aleksejantonov.tajikair.api.entity.LatLng
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
-import timber.log.Timber
 import com.google.android.gms.maps.model.LatLng as MapsLatLng
 import java.math.BigInteger
-import kotlin.math.atan
-import kotlin.math.pow
+import kotlin.math.*
 
-fun getPivotPoints(dep: LatLng, dest: LatLng): Array<Array<Double>> {
+const val MAX_LONGITUDE = 180.0
+const val MIN_LONGITUDE = -180.0
+
+fun getSimpleRoutePivotPoints(dep: LatLng, dest: LatLng): Array<Array<Double>> {
   return when {
     dep.latitude < dest.latitude
         && dep.longitude < dest.longitude
@@ -33,6 +34,24 @@ fun getPivotPoints(dep: LatLng, dest: LatLng): Array<Array<Double>> {
   }
 }
 
+fun getComplexRoutePivotPoints(dep: LatLng, dest: LatLng): Pair<Array<Array<Double>>, Array<Array<Double>>> {
+  val closestBreakLongitude = if (dep.longitude >= 0) MAX_LONGITUDE else MIN_LONGITUDE
+  val middleLatitude = dep.latitude - (dep.latitude - dest.latitude) / 2
+  val firstPath = arrayOf(
+    arrayOf(dep.latitude, dep.longitude),
+    arrayOf(middleLatitude, dep.longitude),
+    arrayOf(dep.latitude, closestBreakLongitude),
+    arrayOf(middleLatitude, closestBreakLongitude),
+  )
+  val secondPath = arrayOf(
+    arrayOf(middleLatitude, closestBreakLongitude * -1),
+    arrayOf(dest.latitude, closestBreakLongitude * -1),
+    arrayOf(middleLatitude, dest.longitude),
+    arrayOf(dest.latitude, dest.longitude)
+  )
+  return firstPath to secondPath
+}
+
 fun getRouteCoordinates(xy: Array<Array<Double>>): List<MapsLatLng> {
   val dots = mutableListOf<MapsLatLng>()
   var t = 0.0
@@ -52,7 +71,6 @@ fun getRouteCoordinates(xy: Array<Array<Double>>): List<MapsLatLng> {
     }
 
     dots.add(MapsLatLng(nextX, nextY))
-    Timber.e("Latitude = $nextX, Longtitude = $nextY $")
     t += (1.0 / count)
   }
   val destinationDot = MapsLatLng(xy[xy.size - 1][0], xy[xy.size - 1][1])
