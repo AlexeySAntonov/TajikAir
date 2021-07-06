@@ -1,11 +1,14 @@
 package com.aleksejantonov.tajikair.ui.map
 
 import android.animation.AnimatorSet
+import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import com.aleksejantonov.tajikair.R
@@ -13,13 +16,14 @@ import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.databinding.FragmentMapBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
-import com.aleksejantonov.tajikair.ui.map.render.CityMarkerRenderer
 import com.aleksejantonov.tajikair.ui.map.render.PlaneMarkerRenderer
 import com.aleksejantonov.tajikair.util.*
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
 import kotlin.math.abs
+
 
 class MapFragment : BaseFragment() {
 
@@ -27,7 +31,6 @@ class MapFragment : BaseFragment() {
 
   private val viewModel by viewModels<MapViewModel> { DI.appComponent.viewModelFactory() }
 
-  private lateinit var cityRenderer: CityMarkerRenderer
   private lateinit var planeRenderer: PlaneMarkerRenderer
 
   private val depCity by lazy { requireNotNull(arguments?.getParcelable(DEPARTURE)) as City }
@@ -53,10 +56,10 @@ class MapFragment : BaseFragment() {
         isIndoorLevelPickerEnabled = false
       }
       context?.let {
-        cityRenderer = CityMarkerRenderer(it, map, ClusterManager(it, map))
         planeRenderer = PlaneMarkerRenderer(it, map, ClusterManager(it, map))
 
-        renderCities(listOf(depCity, desCity))
+        renderCities(map)
+
         val dep = requireNotNull(depCity.latLng)
         val dest = requireNotNull(desCity.latLng)
         if (abs(dep.longitude - dest.longitude) <= MAX_LONGITUDE) {
@@ -85,8 +88,36 @@ class MapFragment : BaseFragment() {
     polyline.pattern = listOf(Dot(), Gap(dpToPx(6f).toFloat()))
   }
 
-  private fun renderCities(cities: List<City>) {
-    cityRenderer.render(cities)
+  private fun renderCities(map: GoogleMap) {
+    val depLatLng = requireNotNull(depCity.latLng)
+    val destLatLng = requireNotNull(desCity.latLng)
+    map.addMarker(
+      MarkerOptions().apply {
+        icon(BitmapDescriptorFactory.fromBitmap(getCityMarkerBitmap(depCity.iata.first())))
+        position(LatLng(depLatLng.latitude, depLatLng.longitude))
+        anchor(0.5f, 0.5f)
+        zIndex(2f)
+      }
+    )
+    map.addMarker(
+      MarkerOptions().apply {
+        icon(BitmapDescriptorFactory.fromBitmap(getCityMarkerBitmap(desCity.iata.first())))
+        position(LatLng(destLatLng.latitude, destLatLng.longitude))
+        anchor(0.5f, 0.5f)
+        zIndex(2f)
+      }
+    )
+
+    val boundsBuilder = LatLngBounds.Builder()
+      .include(LatLng(depLatLng.latitude, depLatLng.longitude))
+      .include(LatLng(destLatLng.latitude, destLatLng.longitude))
+    val bounds = boundsBuilder.build()
+    val padding = when (resources.configuration.orientation) {
+      Configuration.ORIENTATION_PORTRAIT -> binding.root.context.getScreenWidth() / 4
+      else -> binding.root.context.getScreenWidth() / 8
+    }
+    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+    map.animateCamera(cameraUpdate)
   }
 
   private fun startPlaneAnimation(pivotPointsA: Array<Array<Double>>, pivotPointsB: Array<Array<Double>>? = null) {
@@ -142,6 +173,14 @@ class MapFragment : BaseFragment() {
     planeRenderer.onRemove()
     binding.mapView.onDestroy()
     super.onDestroyView()
+  }
+
+  private fun getCityMarkerBitmap(iata: String): Bitmap {
+    val customMarkerView: TextView = layoutInflater.inflate(R.layout.view_city_marker, null) as TextView
+    customMarkerView.text = iata
+    customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+    customMarkerView.layout(0, 0, customMarkerView.measuredWidth, customMarkerView.measuredHeight)
+    return customMarkerView.drawBitmap(w = customMarkerView.measuredWidth, h = customMarkerView.measuredHeight)
   }
 
   companion object {
