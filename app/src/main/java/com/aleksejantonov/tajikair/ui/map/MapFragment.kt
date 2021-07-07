@@ -63,6 +63,7 @@ class MapFragment : BaseFragment() {
           // Simple route without map breaks
           val pivotPoints = getSimpleRoutePivotPoints(depLatLng, destLatLng)
           renderRoute(map, pivotPoints)
+          renderPivotPoints(map, pivotPoints)
           startPlaneAnimation(map, pivotPoints)
         } else {
           val (pivotPointsA, pivotPointsB) = getComplexRoutePivotPoints(depLatLng, destLatLng)
@@ -72,6 +73,28 @@ class MapFragment : BaseFragment() {
         }
       }
     }
+  }
+
+  // Just for info
+  private fun renderPivotPoints(map: GoogleMap, pivotPoints: Array<Array<Double>>) {
+    val a = LatLng(pivotPoints[1][0], pivotPoints[1][1])
+    val b = LatLng(pivotPoints[2][0], pivotPoints[2][1])
+    map.addMarker(
+      MarkerOptions().apply {
+        icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pivot_point))
+        position(a)
+        anchor(0.5f, 0.5f)
+        zIndex(2f)
+      }
+    )
+    map.addMarker(
+      MarkerOptions().apply {
+        icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pivot_point))
+        position(b)
+        anchor(0.5f, 0.5f)
+        zIndex(2f)
+      }
+    )
   }
 
   private fun renderRoute(map: GoogleMap, pivotPoints: Array<Array<Double>>) {

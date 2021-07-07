@@ -12,11 +12,44 @@ const val MIN_LONGITUDE = -180.0
 const val WHOLE_PATH_ANIMATION_DURATION = 20000L
 
 fun getSimpleRoutePivotPoints(dep: MapsLatLng, dest: MapsLatLng): Array<Array<Double>> {
+  val deltaLat = abs(dep.latitude - dest.latitude)
+  val deltaLng = abs(dep.longitude - dest.longitude) / 2 // In visual presentation 1 Lat == 2 Lng
+
+  val startPoint = arrayOf(dep.latitude, dep.longitude)
+  val endPoint = arrayOf(dest.latitude, dest.longitude)
+  val firstPivotPoint: Array<Double>
+  val secondPivotPoint: Array<Double>
+  when {
+    // Shift pivot points in case of big difference between Lat and Lng
+    deltaLat > deltaLng * 2 -> {
+      val fpLng = if (dest.longitude > dep.longitude) dest.longitude + (deltaLat - deltaLng) / 2
+      else dest.longitude - (deltaLat - deltaLng) / 2
+      firstPivotPoint = arrayOf(dep.latitude, fpLng)
+
+      val spLng = if (dest.longitude > dep.longitude) dep.longitude - (deltaLat - deltaLng) / 2
+      else dep.longitude + (deltaLat - deltaLng) / 2
+      secondPivotPoint = arrayOf(dest.latitude, spLng)
+    }
+    deltaLng > deltaLat * 2 -> {
+      val fpLat = if (dest.latitude > dep.latitude) dep.latitude - (deltaLng - deltaLat) / 2
+      else dep.latitude + (deltaLng - deltaLat) / 2
+      firstPivotPoint = arrayOf(fpLat, dest.longitude)
+
+      val spLat = if (dest.latitude > dep.latitude) dest.latitude + (deltaLng - deltaLat) / 2
+      else dest.latitude - (deltaLng - deltaLat) / 2
+      secondPivotPoint = arrayOf(spLat, dep.longitude)
+    }
+    else -> {
+      firstPivotPoint = arrayOf(dep.latitude, dest.longitude)
+      secondPivotPoint = arrayOf(dest.latitude, dep.longitude)
+    }
+  }
+
   return arrayOf(
-    arrayOf(dep.latitude, dep.longitude),
-    arrayOf(dep.latitude, dest.longitude),
-    arrayOf(dest.latitude, dep.longitude),
-    arrayOf(dest.latitude, dest.longitude)
+    startPoint,
+    firstPivotPoint,
+    secondPivotPoint,
+    endPoint
   )
 }
 
@@ -115,9 +148,9 @@ fun factorial(n: Int): BigInteger {
 
 fun complexRoutePathsDurations(pivotPointsA: Array<Array<Double>>, pivotPointsB: Array<Array<Double>>): Pair<Long, Long> {
   val aDep = MapsLatLng(pivotPointsA[0][0], pivotPointsA[0][1])
-  val aDest = MapsLatLng(pivotPointsA[pivotPointsA.size - 1][0],pivotPointsA[pivotPointsA.size - 1][1])
+  val aDest = MapsLatLng(pivotPointsA[pivotPointsA.size - 1][0], pivotPointsA[pivotPointsA.size - 1][1])
   val bDep = MapsLatLng(pivotPointsB[0][0], pivotPointsB[0][1])
-  val bDest = MapsLatLng(pivotPointsB[pivotPointsB.size - 1][0],pivotPointsB[pivotPointsB.size - 1][1])
+  val bDest = MapsLatLng(pivotPointsB[pivotPointsB.size - 1][0], pivotPointsB[pivotPointsB.size - 1][1])
   val results = FloatArray(1)
   Location.distanceBetween(aDep.latitude, aDep.longitude, aDest.latitude, aDest.longitude, results)
   val aDistance = results[0]
