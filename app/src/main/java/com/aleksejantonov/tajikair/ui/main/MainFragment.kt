@@ -41,7 +41,7 @@ class MainFragment : BaseFragment() {
   }
 
   private fun setDepartureSearchText(text: String) {
-    safePostDelayed({ binding.departureSearch.setSearchText(text) }, 100L)
+//    safePostDelayed({ binding.departureSearch.setSearchText(text) }, 100L)
   }
 
   private fun setDestinationsSearchText(text: String) {
@@ -54,7 +54,7 @@ class MainFragment : BaseFragment() {
   }
 
   private fun applyDepartureResults(locations: List<LocationSuggestion>) {
-    binding.departureSearch.swapSuggestions(locations)
+//    binding.departureSearch.swapSuggestions(locations)
   }
 
   private fun applyDestinationResults(locations: List<LocationSuggestion>) {
@@ -63,10 +63,11 @@ class MainFragment : BaseFragment() {
 
   private fun initDeparture() {
     with(binding.departureSearch) {
-      setOnQueryChangeListener { _, newQuery -> viewModel.departureQueryChanged(newQuery) }
-      initOnSearchListener(viewModel::departureChanged)
-      initSuggestionsHeightChangeListener(binding.destinationLabel, binding.destinationSearch)
-      initOnClearSearchListener(viewModel::departureChanged)
+      onQueryChanged { newQuery -> viewModel.departureQueryChanged(newQuery) }
+//      setOnQueryChangeListener { _, newQuery -> viewModel.departureQueryChanged(newQuery) }
+//      initOnSearchListener(viewModel::departureChanged)
+//      initSuggestionsHeightChangeListener(binding.destinationLabel, binding.destinationSearch)
+//      initOnClearSearchListener(viewModel::departureChanged)
       lifecycleScope.launchWhenCreated {
         viewModel.departureLocationData.collect { city ->
           setDepartureSearchText(city.fullName)

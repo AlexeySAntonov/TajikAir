@@ -10,6 +10,8 @@
     <color name="white">#FFFFFF</color>
     <color name="appBlue">#4C8BFF</color>
     <color name="appBlueLight">#67AAE7</color>
+    <color name="appBlack">#333436</color>
+    <color name="appGrey">#887D93</color>
     <color name="appOrange">#FF7338</color>
     <color name="semiTransparent">#42000000</color>
     <color name="semiTransparentDot">#88000000</color>

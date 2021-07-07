@@ -9,7 +9,11 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
+import android.widget.EditText
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.aleksejantonov.tajikair.R
 import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.ui.main.LocationSuggestion
 import com.arlib.floatingsearchview.FloatingSearchView
@@ -55,6 +59,8 @@ fun Context.hasSoftBottomBar(isLandscapeMode: Boolean = false): Boolean {
     return if (!isLandscapeMode) fullSize.y - screenSize.y >= bottomBarHeight
     else fullSize.x - screenSize.x >= bottomBarHeight
 }
+
+fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
 
 fun Context.dpToPx(dp: Float): Int {
     val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -148,4 +154,12 @@ fun FloatingSearchView.initSuggestionsHeightChangeListener(vararg dependentViews
 
 fun FloatingSearchView.initOnClearSearchListener(onClearAction: (City) -> Unit) {
     setOnClearSearchActionListener { onClearAction.invoke(cityStub()) }
+}
+
+fun TextView.textColor(id: Int) {
+    setTextColor(ContextCompat.getColor(context, id))
+}
+
+fun EditText.hintTextColor(id: Int) {
+    setHintTextColor(ContextCompat.getColor(context, id))
 }

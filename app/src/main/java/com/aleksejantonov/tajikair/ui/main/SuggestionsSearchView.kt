@@ -1,0 +1,176 @@
+package com.aleksejantonov.tajikair.ui.main
+
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.content.Context
+import android.graphics.Typeface
+import android.text.InputType
+import android.text.TextUtils
+import android.util.AttributeSet
+import android.view.Gravity
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
+import com.aleksejantonov.tajikair.R
+import com.aleksejantonov.tajikair.ui.base.LayoutHelper
+import com.aleksejantonov.tajikair.util.*
+
+class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : FrameLayout(context, attributeSet) {
+
+  private var labelTextView: TextView? = null
+  private var searchEditText: EditText? = null
+  private var clearImageView: ImageView? = null
+
+  private var animatorSet: AnimatorSet? = null
+
+  private var queryChangedListener: ((query: String) -> Unit)? = null
+
+  init {
+    layoutParams = LayoutHelper.getFrameParams(
+      context = context,
+      width = LayoutHelper.MATCH_PARENT,
+      height = LayoutHelper.MATCH_PARENT,
+    )
+    isClickable = true
+    isFocusable = true
+    setOnClickListener { searchEditText?.showKeyboard() }
+    setupLabelTextView()
+    setupSearchEditText()
+    setupClearImageView()
+  }
+
+  override fun onDetachedFromWindow() {
+    animatorSet?.cancel()
+    animatorSet = null
+    super.onDetachedFromWindow()
+  }
+
+  fun onQueryChanged(listener: (query: String) -> Unit) {
+    queryChangedListener = listener
+  }
+
+  private fun setupLabelTextView() {
+    labelTextView = TextView(context).apply {
+      layoutParams = LayoutHelper.getFrameParams(
+        context = context,
+        width = LayoutHelper.MATCH_PARENT,
+        height = LABEL_HEIGHT,
+        gravity = Gravity.START or Gravity.TOP,
+        leftMargin = LABEL_MARGIN_START_END,
+        rightMargin = LABEL_MARGIN_START_END,
+        topMargin = LABEL_MARGIN_TOP,
+      )
+      text = "From" // TODO: attr
+      ellipsize = TextUtils.TruncateAt.END
+      maxLines = 1
+      textSize = 14f
+      textColor(R.color.white)
+      typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+    }
+    labelTextView?.let { addView(it) }
+  }
+
+  private fun setupSearchEditText() {
+    searchEditText = EditText(context).apply {
+      layoutParams = LayoutHelper.getFrameParams(
+        context = context,
+        width = LayoutHelper.MATCH_PARENT,
+        height = SEARCH_HEIGHT,
+        gravity = Gravity.START or Gravity.TOP,
+        leftMargin = LABEL_MARGIN_START_END,
+        rightMargin = LABEL_MARGIN_START_END,
+        topMargin = LABEL_MARGIN_TOP + LABEL_HEIGHT + SEARCH_MARGIN_TOP,
+      )
+      setPaddings(left = dpToPx(SEARCH_PADDING_START))
+      setHint(R.string.departure_search_hint) // TODO: attr
+      hintTextColor(R.color.appGrey)
+      textColor(R.color.appGrey)
+      setBackgroundResource(R.drawable.background_search)
+      maxLines = 1
+      inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS
+      doAfterTextChanged { newQuery ->
+        newQuery?.let { queryChangedListener?.invoke(it.toString()) }
+        if (newQuery.isNullOrBlank()) animateClearHide() else animateClearShow()
+      }
+    }
+    searchEditText?.let { addView(it) }
+  }
+
+  private fun setupClearImageView() {
+    clearImageView = ImageView(context).apply {
+      layoutParams = LayoutHelper.getFrameParams(
+        context = context,
+        width = CLEAR_IMAGE_DIMEN,
+        height = CLEAR_IMAGE_DIMEN,
+        rightMargin = CLEAR_IMAGE_MARGIN_END,
+        topMargin = LABEL_MARGIN_TOP + LABEL_HEIGHT + SEARCH_MARGIN_TOP + (SEARCH_HEIGHT - CLEAR_IMAGE_DIMEN) / 2,
+        gravity = Gravity.END or Gravity.TOP,
+      )
+
+      scaleType = ImageView.ScaleType.CENTER
+      setImageResource(R.drawable.ic_clear_24)
+      setColorFilter(ContextCompat.getColor(context, R.color.appGrey))
+      setBackgroundResource(R.drawable.selector_button_dark)
+      scaleX = 0.25f
+      scaleY = 0.25f
+      rotation = -90f
+      isVisible = false
+      setOnClickListener { searchEditText?.setText("") }
+    }
+    clearImageView?.let { addView(it) }
+  }
+
+  private fun animateClearShow() {
+    animatorSet?.cancel()
+    animatorSet = AnimatorSet().apply {
+      playTogether(
+        ObjectAnimator.ofFloat(clearImageView, View.SCALE_X, 1f),
+        ObjectAnimator.ofFloat(clearImageView, View.SCALE_Y, 1f),
+        ObjectAnimator.ofFloat(clearImageView, View.ROTATION, 0f),
+      )
+      duration = CLEAR_ANIM_DURATION
+      interpolator = AccelerateDecelerateInterpolator()
+      doOnStart { clearImageView?.isVisible = true }
+      doOnEnd { if (it == animatorSet) animatorSet = null }
+      start()
+    }
+  }
+
+  private fun animateClearHide() {
+    animatorSet?.cancel()
+    animatorSet = AnimatorSet().apply {
+      playTogether(
+        ObjectAnimator.ofFloat(clearImageView, View.SCALE_X, 0.25f),
+        ObjectAnimator.ofFloat(clearImageView, View.SCALE_Y, 0.25f),
+        ObjectAnimator.ofFloat(clearImageView, View.ROTATION, -90f),
+      )
+      duration = CLEAR_ANIM_DURATION
+      interpolator = AccelerateDecelerateInterpolator()
+      doOnEnd {
+        if (it == animatorSet) animatorSet = null
+        clearImageView?.isVisible = false
+      }
+      start()
+    }
+  }
+
+  companion object {
+    private const val LABEL_HEIGHT = 20
+    private const val LABEL_MARGIN_TOP = 24
+    private const val LABEL_MARGIN_START_END = 16
+    private const val SEARCH_HEIGHT = 48
+    private const val SEARCH_MARGIN_TOP = 8
+    private const val SEARCH_PADDING_START = 16F
+    private const val CLEAR_IMAGE_DIMEN = 32
+    private const val CLEAR_IMAGE_MARGIN_END = 24
+    private const val CLEAR_ANIM_DURATION = 300L
+  }
+}
