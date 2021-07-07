@@ -24,20 +24,28 @@ fun getSimpleRoutePivotPoints(dep: MapsLatLng, dest: MapsLatLng): Array<Array<Do
     deltaLat > deltaLng * 2 -> {
       val fpLng = if (dest.longitude > dep.longitude) dest.longitude + (deltaLat - deltaLng) / 2
       else dest.longitude - (deltaLat - deltaLng) / 2
-      firstPivotPoint = arrayOf(dep.latitude, fpLng)
+      val fpLat = if (dest.latitude > dep.latitude)  dep.latitude + deltaLat / 4
+      else dep.latitude - deltaLat / 4
+      firstPivotPoint = arrayOf(fpLat, fpLng)
 
       val spLng = if (dest.longitude > dep.longitude) dep.longitude - (deltaLat - deltaLng) / 2
       else dep.longitude + (deltaLat - deltaLng) / 2
-      secondPivotPoint = arrayOf(dest.latitude, spLng)
+      val spLat = if (dest.latitude > dep.latitude) dest.latitude - deltaLat / 4
+      else dest.latitude + deltaLat / 4
+      secondPivotPoint = arrayOf(spLat, spLng)
     }
     deltaLng > deltaLat * 2 -> {
       val fpLat = if (dest.latitude > dep.latitude) dep.latitude - (deltaLng - deltaLat) / 2
       else dep.latitude + (deltaLng - deltaLat) / 2
-      firstPivotPoint = arrayOf(fpLat, dest.longitude)
+      val fpLng = if (dest.longitude > dep.longitude) dest.longitude - deltaLng / 2
+      else dest.longitude + deltaLng / 2
+      firstPivotPoint = arrayOf(fpLat, fpLng)
 
       val spLat = if (dest.latitude > dep.latitude) dest.latitude + (deltaLng - deltaLat) / 2
       else dest.latitude - (deltaLng - deltaLat) / 2
-      secondPivotPoint = arrayOf(spLat, dep.longitude)
+      val spLng = if (dest.longitude > dep.longitude) dep.longitude + deltaLng / 2
+      else dep.longitude - deltaLng / 2
+      secondPivotPoint = arrayOf(spLat, spLng)
     }
     else -> {
       firstPivotPoint = arrayOf(dep.latitude, dest.longitude)
