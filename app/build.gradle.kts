@@ -72,4 +72,7 @@ dependencies {
 
   // Log
   implementation(Libs.timber)
+
+  // Leaks
+  debugImplementation(Libs.leakCanary)
 }

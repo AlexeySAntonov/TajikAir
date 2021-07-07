@@ -22,7 +22,6 @@ object Libs {
     const val retrofit2RxAdapter = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit}"
 
     const val maps = "com.google.android.gms:play-services-maps:17.0.1"
-    const val mapsUtils = "com.google.maps.android:android-maps-utils:0.5"
 
     const val dagger = "com.google.dagger:dagger:${Versions.dagger}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
@@ -30,6 +29,8 @@ object Libs {
     const val searchForms = "com.github.arimorty:floatingsearchview:2.1.1"
 
     const val timber = "com.jakewharton.timber:timber:4.7.1"
+
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:2.7"
 }
 
 object BuildPlugins {
