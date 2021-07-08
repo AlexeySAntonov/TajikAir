@@ -21,10 +21,10 @@ import androidx.core.animation.doOnStart
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aleksejantonov.tajikair.R
-import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.databinding.ItemSuggestionBinding
 import com.aleksejantonov.tajikair.ui.base.LayoutHelper
 import com.aleksejantonov.tajikair.util.*
@@ -40,13 +40,18 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
   private var searchEditText: EditText? = null
   private var clearImageView: ImageView? = null
   private var suggestionsRecyclerView: RecyclerView? = null
-  private val suggestionsAdapter by lazy { SuggestionsAdapter { onSuggestionClickedInternal(it) } }
+  private val suggestionsAdapter by lazy {
+    SuggestionsAdapter(
+      onSuggestionClick = ::onSuggestionClickedInternal,
+      onItemsUpdated = ::suggestionItemsUpdated,
+    )
+  }
 
   private var animatorSet: AnimatorSet? = null
   private var skipNextTextChangedIteration: Boolean = false
 
   private var queryChangedListener: ((query: String) -> Unit)? = null
-  private var suggestionsClickedListener: ((suggestion: City) -> Unit)? = null
+  private var suggestionsClickedListener: ((suggestion: CityItem) -> Unit)? = null
   private var clearedListener: (() -> Unit)? = null
 
   init {
@@ -91,7 +96,7 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     queryChangedListener = listener
   }
 
-  fun onSuggestionClicked(listener: (suggestion: City) -> Unit) {
+  fun onSuggestionClicked(listener: (suggestion: CityItem) -> Unit) {
     suggestionsClickedListener = listener
   }
 
@@ -105,7 +110,7 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     searchEditText?.setSelection(searchEditText?.text?.length ?: 0)
   }
 
-  fun swapSuggestions(cities: List<City>) {
+  fun swapSuggestions(cities: List<CityItem>) {
     suggestionsAdapter.setItems(cities)
   }
 
@@ -237,17 +242,22 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     }
   }
 
-  private fun onSuggestionClickedInternal(city: City) {
+  private fun onSuggestionClickedInternal(city: CityItem) {
     suggestionsClickedListener?.invoke(city)
     suggestionsAdapter.setItems(emptyList())
     searchEditText?.let { context.hideKeyboard(it) }
   }
 
+  private fun suggestionItemsUpdated() {
+    suggestionsRecyclerView?.requestLayout()
+  }
+
   private class SuggestionsAdapter(
-    private val onSuggestionClick: (City) -> Unit
+    private val onSuggestionClick: (CityItem) -> Unit,
+    private val onItemsUpdated: () -> Unit,
   ) : RecyclerView.Adapter<SuggestionsAdapter.ViewHolder>() {
 
-    private val items = mutableListOf<City>()
+    private val items = mutableListOf<CityItem>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
       return ViewHolder(ItemSuggestionBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -259,15 +269,23 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
 
     override fun getItemCount(): Int = items.size
 
-    fun setItems(newItems: List<City>) {
-      items.clear()
-      items.addAll(newItems)
-      notifyDataSetChanged()
+    fun setItems(newItems: List<CityItem>) {
+      if (items.isEmpty()) {
+        items.addAll(newItems)
+        notifyDataSetChanged()
+      } else {
+        val diffCallback = CitiesDiffCallback(items, newItems)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        items.clear()
+        items.addAll(newItems)
+        diffResult.dispatchUpdatesTo(this)
+      }
+      onItemsUpdated.invoke()
     }
 
     private inner class ViewHolder(private val binding: ItemSuggestionBinding) : RecyclerView.ViewHolder(binding.root) {
 
-      fun bind(item: City) {
+      fun bind(item: CityItem) {
         with(binding.suggestion) {
           text = item.fullName
           setOnClickListener { onSuggestionClick.invoke(item) }

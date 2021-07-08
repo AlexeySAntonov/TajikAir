@@ -31,11 +31,11 @@ class MainViewModel @Inject constructor(
   private val _departureQueryData = MutableSharedFlow<String>()
   private val _destinationQueryData = MutableSharedFlow<String>()
 
-  private val _departureSuggestionsData = MutableSharedFlow<List<City>>()
-  val departureSuggestionsData: SharedFlow<List<City>> = _departureSuggestionsData
+  private val _departureSuggestionsData = MutableSharedFlow<List<CityItem>>()
+  val departureSuggestionsData: SharedFlow<List<CityItem>> = _departureSuggestionsData
 
-  private val _destinationSuggestionsData = MutableSharedFlow<List<City>>()
-  val destinationSuggestionsData: SharedFlow<List<City>> = _destinationSuggestionsData
+  private val _destinationSuggestionsData = MutableSharedFlow<List<CityItem>>()
+  val destinationSuggestionsData: SharedFlow<List<CityItem>> = _destinationSuggestionsData
 
   init {
     viewModelScope.launch(dispatcherDefault + exceptionHandler) {
@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
       _departureQueryData
         .debounce(400L)
         .flatMapLatest { query -> repository.searchCities(query) }
-//        .map { cities -> cities.map { LocationSuggestion(it) } }
+        .map { cities -> cities.map { CityItem.from(it) } }
         .collect { _departureSuggestionsData.emit(it) }
     }
 
@@ -61,7 +61,7 @@ class MainViewModel @Inject constructor(
       _destinationQueryData
         .debounce(400L)
         .flatMapLatest { query -> repository.searchCities(query) }
-//        .map { cities -> cities.map { LocationSuggestion(it) } }
+        .map { cities -> cities.map { CityItem.from(it) } }
         .collect { _destinationSuggestionsData.emit(it) }
     }
 

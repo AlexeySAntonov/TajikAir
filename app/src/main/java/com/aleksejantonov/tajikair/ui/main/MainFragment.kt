@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.databinding.FragmentMainBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
+import com.aleksejantonov.tajikair.ui.main.CityItem.Companion.toCity
 import com.aleksejantonov.tajikair.util.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -54,11 +54,11 @@ class MainFragment : BaseFragment() {
     binding.search.alpha = if (enabled) 1f else 0.5f
   }
 
-  private fun applyDepartureResults(cities: List<City>) {
+  private fun applyDepartureResults(cities: List<CityItem>) {
     binding.departureSearch.swapSuggestions(cities)
   }
 
-  private fun applyDestinationResults(cities: List<City>) {
+  private fun applyDestinationResults(cities: List<CityItem>) {
     binding.destinationSearch.swapSuggestions(cities)
   }
 
@@ -66,7 +66,7 @@ class MainFragment : BaseFragment() {
     with(binding.departureSearch) {
       setType(SuggestionsSearchView.Type.DEPARTURE)
       onQueryChanged { newQuery -> viewModel.departureQueryChanged(newQuery) }
-      onSuggestionClicked { suggestion -> viewModel.departureChanged(suggestion) }
+      onSuggestionClicked { suggestion -> viewModel.departureChanged(suggestion.toCity()) }
       onCleared { viewModel.departureChanged(cityStub()) }
       lifecycleScope.launchWhenCreated {
         viewModel.departureLocationData.collect { city ->
@@ -85,7 +85,7 @@ class MainFragment : BaseFragment() {
     with(binding.destinationSearch) {
       setType(SuggestionsSearchView.Type.DESTINATION)
       onQueryChanged { newQuery -> viewModel.destinationQueryChanged(newQuery) }
-      onSuggestionClicked { suggestion -> viewModel.destinationChanged(suggestion) }
+      onSuggestionClicked { suggestion -> viewModel.destinationChanged(suggestion.toCity()) }
       onCleared { viewModel.destinationChanged(cityStub()) }
       lifecycleScope.launchWhenCreated {
         viewModel.destinationLocationData.collect { city ->
