@@ -26,8 +26,6 @@ object Libs {
     const val dagger = "com.google.dagger:dagger:${Versions.dagger}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
 
-    const val searchForms = "com.github.arimorty:floatingsearchview:2.1.1"
-
     const val timber = "com.jakewharton.timber:timber:4.7.1"
 
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:2.7"

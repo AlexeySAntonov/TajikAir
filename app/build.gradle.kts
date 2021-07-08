@@ -60,9 +60,6 @@ dependencies {
   implementation(Libs.retrofit2ConverterGson)
   implementation(Libs.retrofit2RxAdapter)
 
-  // Search
-  implementation(Libs.searchForms)
-
   // Map
   implementation(Libs.maps)
 

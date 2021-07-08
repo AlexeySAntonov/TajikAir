@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.databinding.FragmentMainBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
@@ -41,7 +42,7 @@ class MainFragment : BaseFragment() {
   }
 
   private fun setDepartureSearchText(text: String) {
-//    safePostDelayed({ binding.departureSearch.setSearchText(text) }, 100L)
+    safePostDelayed({ binding.departureSearch.setSearchText(text) }, 100L)
   }
 
   private fun setDestinationsSearchText(text: String) {
@@ -53,21 +54,19 @@ class MainFragment : BaseFragment() {
     binding.search.alpha = if (enabled) 1f else 0.5f
   }
 
-  private fun applyDepartureResults(locations: List<LocationSuggestion>) {
-//    binding.departureSearch.swapSuggestions(locations)
+  private fun applyDepartureResults(cities: List<City>) {
+    binding.departureSearch.swapSuggestions(cities)
   }
 
-  private fun applyDestinationResults(locations: List<LocationSuggestion>) {
-    binding.destinationSearch.swapSuggestions(locations)
+  private fun applyDestinationResults(cities: List<City>) {
+    binding.destinationSearch.swapSuggestions(cities)
   }
 
   private fun initDeparture() {
     with(binding.departureSearch) {
+      setType(SuggestionsSearchView.Type.DEPARTURE)
       onQueryChanged { newQuery -> viewModel.departureQueryChanged(newQuery) }
-//      setOnQueryChangeListener { _, newQuery -> viewModel.departureQueryChanged(newQuery) }
-//      initOnSearchListener(viewModel::departureChanged)
-//      initSuggestionsHeightChangeListener(binding.destinationLabel, binding.destinationSearch)
-//      initOnClearSearchListener(viewModel::departureChanged)
+      onSuggestionClicked { suggestion -> viewModel.departureChanged(suggestion) }
       lifecycleScope.launchWhenCreated {
         viewModel.departureLocationData.collect { city ->
           setDepartureSearchText(city.fullName)
@@ -83,9 +82,9 @@ class MainFragment : BaseFragment() {
 
   private fun initDestination() {
     with(binding.destinationSearch) {
-      setOnQueryChangeListener { _, newQuery -> viewModel.destinationQueryChanged(newQuery) }
-      initOnSearchListener(viewModel::destinationChanged)
-      initOnClearSearchListener(viewModel::destinationChanged)
+      setType(SuggestionsSearchView.Type.DESTINATION)
+      onQueryChanged { newQuery -> viewModel.destinationQueryChanged(newQuery) }
+      onSuggestionClicked { suggestion -> viewModel.destinationChanged(suggestion) }
       lifecycleScope.launchWhenCreated {
         viewModel.destinationLocationData.collect { city ->
           setDestinationsSearchText(city.fullName)
