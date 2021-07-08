@@ -12,6 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -47,7 +49,8 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     )
   }
 
-  private var animatorSet: AnimatorSet? = null
+  private var clearAnimatorSet: AnimatorSet? = null
+  private var recyclerAnimatorSet: AnimatorSet? = null
   private var skipNextTextChangedIteration: Boolean = false
 
   private var queryChangedListener: ((query: String) -> Unit)? = null
@@ -72,9 +75,11 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
   }
 
   override fun onDetachedFromWindow() {
-    animatorSet?.cancel()
-    animatorSet = null
-    suggestionsRecyclerView = null
+    clearAnimatorSet?.cancel()
+    clearAnimatorSet = null
+    recyclerAnimatorSet?.cancel()
+    recyclerAnimatorSet = null
+    suggestionsRecyclerView?.adapter = null
     super.onDetachedFromWindow()
   }
 
@@ -157,7 +162,12 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
         } else {
           newQuery?.let { queryChangedListener?.invoke(it.toString()) }
         }
-        if (newQuery.isNullOrBlank()) animateClearHide() else animateClearShow()
+        if (newQuery.isNullOrBlank()) {
+          animateClearHide()
+          animateSuggestionsHide()
+        } else {
+          animateClearShow()
+        }
       }
     }
     searchEditText?.let { addView(it) }
@@ -201,6 +211,9 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
         bottomMargin = RECYCLER_MARGIN_BOTTOM,
         gravity = Gravity.START or Gravity.TOP,
       )
+      scaleX = 0f
+      scaleY = 0f
+      alpha = 0f
       elevation = dpToPx(4f).toFloat()
       setBackgroundResource(R.drawable.background_search)
       setHasFixedSize(true)
@@ -211,8 +224,8 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
   }
 
   private fun animateClearShow() {
-    animatorSet?.cancel()
-    animatorSet = AnimatorSet().apply {
+    clearAnimatorSet?.cancel()
+    clearAnimatorSet = AnimatorSet().apply {
       playTogether(
         ObjectAnimator.ofFloat(clearImageView, View.SCALE_X, 1f),
         ObjectAnimator.ofFloat(clearImageView, View.SCALE_Y, 1f),
@@ -220,14 +233,14 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
       duration = CLEAR_ANIM_DURATION
       interpolator = AccelerateDecelerateInterpolator()
       doOnStart { clearImageView?.isVisible = true }
-      doOnEnd { if (it == animatorSet) animatorSet = null }
+      doOnEnd { if (it == clearAnimatorSet) clearAnimatorSet = null }
       start()
     }
   }
 
   private fun animateClearHide() {
-    animatorSet?.cancel()
-    animatorSet = AnimatorSet().apply {
+    clearAnimatorSet?.cancel()
+    clearAnimatorSet = AnimatorSet().apply {
       playTogether(
         ObjectAnimator.ofFloat(clearImageView, View.SCALE_X, 0.25f),
         ObjectAnimator.ofFloat(clearImageView, View.SCALE_Y, 0.25f),
@@ -235,26 +248,60 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
       duration = CLEAR_ANIM_DURATION
       interpolator = AccelerateDecelerateInterpolator()
       doOnEnd {
-        if (it == animatorSet) animatorSet = null
+        if (it == clearAnimatorSet) clearAnimatorSet = null
         clearImageView?.isVisible = false
       }
       start()
     }
   }
 
+  // Show when suggestions dispatched
+  private fun animateSuggestionsShow() {
+    recyclerAnimatorSet?.cancel()
+    recyclerAnimatorSet = AnimatorSet().apply {
+      playTogether(
+        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_X, 1f),
+        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_Y, 1f),
+        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.ALPHA, 1f),
+      )
+      duration = RECYCLER_ANIM_DURATION
+      interpolator = DecelerateInterpolator()
+      doOnEnd { if (it == recyclerAnimatorSet) recyclerAnimatorSet = null }
+      start()
+    }
+  }
+
+  // Hide immediately when the search input is blank
+  private fun animateSuggestionsHide() {
+    recyclerAnimatorSet?.cancel()
+    recyclerAnimatorSet = AnimatorSet().apply {
+      playTogether(
+        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_X, 0f),
+        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_Y, 0f),
+        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.ALPHA, 0f),
+      )
+      duration = RECYCLER_ANIM_DURATION
+      interpolator = AccelerateInterpolator()
+      doOnEnd { if (it == recyclerAnimatorSet) recyclerAnimatorSet = null }
+      start()
+    }
+  }
+
   private fun onSuggestionClickedInternal(city: CityItem) {
+    searchEditText?.setText("")
     suggestionsClickedListener?.invoke(city)
     suggestionsAdapter.setItems(emptyList())
     searchEditText?.let { context.hideKeyboard(it) }
   }
 
-  private fun suggestionItemsUpdated() {
-    suggestionsRecyclerView?.requestLayout()
+  private fun suggestionItemsUpdated(size: Int) {
+    postDelayed({ runCatching { suggestionsRecyclerView?.requestLayout() } }, RECYCLER_ANIM_DURATION)
+    if (size > 0) animateSuggestionsShow()
   }
 
   private class SuggestionsAdapter(
     private val onSuggestionClick: (CityItem) -> Unit,
-    private val onItemsUpdated: () -> Unit,
+    private val onItemsUpdated: (size: Int) -> Unit,
   ) : RecyclerView.Adapter<SuggestionsAdapter.ViewHolder>() {
 
     private val items = mutableListOf<CityItem>()
@@ -280,7 +327,7 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
         items.addAll(newItems)
         diffResult.dispatchUpdatesTo(this)
       }
-      onItemsUpdated.invoke()
+      onItemsUpdated.invoke(items.size)
     }
 
     private inner class ViewHolder(private val binding: ItemSuggestionBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -310,5 +357,6 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     private const val CLEAR_ANIM_DURATION = 300L
     private const val RECYCLER_MARGIN_TOP = SEARCH_MARGIN_TOP_SUMMARY + SEARCH_HEIGHT
     private const val RECYCLER_MARGIN_BOTTOM = 24
+    private const val RECYCLER_ANIM_DURATION = 120L
   }
 }
