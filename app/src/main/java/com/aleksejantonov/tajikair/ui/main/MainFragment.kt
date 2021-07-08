@@ -67,6 +67,7 @@ class MainFragment : BaseFragment() {
       setType(SuggestionsSearchView.Type.DEPARTURE)
       onQueryChanged { newQuery -> viewModel.departureQueryChanged(newQuery) }
       onSuggestionClicked { suggestion -> viewModel.departureChanged(suggestion) }
+      onCleared { viewModel.departureChanged(cityStub()) }
       lifecycleScope.launchWhenCreated {
         viewModel.departureLocationData.collect { city ->
           setDepartureSearchText(city.fullName)
@@ -85,6 +86,7 @@ class MainFragment : BaseFragment() {
       setType(SuggestionsSearchView.Type.DESTINATION)
       onQueryChanged { newQuery -> viewModel.destinationQueryChanged(newQuery) }
       onSuggestionClicked { suggestion -> viewModel.destinationChanged(suggestion) }
+      onCleared { viewModel.destinationChanged(cityStub()) }
       lifecycleScope.launchWhenCreated {
         viewModel.destinationLocationData.collect { city ->
           setDestinationsSearchText(city.fullName)

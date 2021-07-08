@@ -47,6 +47,7 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
 
   private var queryChangedListener: ((query: String) -> Unit)? = null
   private var suggestionsClickedListener: ((suggestion: City) -> Unit)? = null
+  private var clearedListener: (() -> Unit)? = null
 
   init {
     layoutParams = LayoutHelper.getFrameParams(
@@ -92,6 +93,10 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
 
   fun onSuggestionClicked(listener: (suggestion: City) -> Unit) {
     suggestionsClickedListener = listener
+  }
+
+  fun onCleared(listener: () -> Unit) {
+    clearedListener = listener
   }
 
   fun setSearchText(text: String) {
@@ -171,7 +176,10 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
       scaleX = 0.25f
       scaleY = 0.25f
       isVisible = false
-      setOnClickListener { searchEditText?.setText("") }
+      setOnClickListener {
+        searchEditText?.setText("")
+        clearedListener?.invoke()
+      }
     }
     clearImageView?.let { addView(it) }
   }
