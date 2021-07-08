@@ -211,7 +211,6 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
         bottomMargin = RECYCLER_MARGIN_BOTTOM,
         gravity = Gravity.START or Gravity.TOP,
       )
-      scaleX = 0f
       scaleY = 0f
       alpha = 0f
       elevation = dpToPx(4f).toFloat()
@@ -260,7 +259,6 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     recyclerAnimatorSet?.cancel()
     recyclerAnimatorSet = AnimatorSet().apply {
       playTogether(
-        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_X, 1f),
         ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_Y, 1f),
         ObjectAnimator.ofFloat(suggestionsRecyclerView, View.ALPHA, 1f),
       )
@@ -276,7 +274,6 @@ class SuggestionsSearchView(context: Context, attributeSet: AttributeSet) : Fram
     recyclerAnimatorSet?.cancel()
     recyclerAnimatorSet = AnimatorSet().apply {
       playTogether(
-        ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_X, 0f),
         ObjectAnimator.ofFloat(suggestionsRecyclerView, View.SCALE_Y, 0f),
         ObjectAnimator.ofFloat(suggestionsRecyclerView, View.ALPHA, 0f),
       )
