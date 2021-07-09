@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import com.aleksejantonov.tajikair.api.entity.City
+import kotlinx.coroutines.flow.SharedFlow
 
 fun cityStub() = City("", "", null, emptyList())
 
@@ -55,4 +56,8 @@ fun Context.hideKeyboard(view: View, delay: Long = 0) {
 private fun Context.hideKeyBoardImmediately(view: View) {
   val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
   inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+}
+
+fun <T> SharedFlow<T>.value(): T? {
+  return replayCache.getOrNull(0)
 }

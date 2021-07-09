@@ -7,6 +7,7 @@ import com.aleksejantonov.tajikair.model.CitiesRepository
 import com.aleksejantonov.tajikair.navigation.AppRouter
 import com.aleksejantonov.tajikair.ui.Screens.*
 import com.aleksejantonov.tajikair.ui.base.BaseViewModel
+import com.aleksejantonov.tajikair.util.value
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -53,7 +54,7 @@ class MainViewModel @Inject constructor(
       _departureQueryData
         .debounce(400L)
         .flatMapLatest { query -> repository.searchCities(query) }
-        .map { cities -> cities.map { CityItem.from(it) } }
+        .map { cities -> cities.filter { it.iata != _destinationLocationData.value()?.iata }.map { CityItem.from(it) } }
         .collect { _departureSuggestionsData.emit(it) }
     }
 
@@ -61,7 +62,7 @@ class MainViewModel @Inject constructor(
       _destinationQueryData
         .debounce(400L)
         .flatMapLatest { query -> repository.searchCities(query) }
-        .map { cities -> cities.map { CityItem.from(it) } }
+        .map { cities -> cities.filter { it.iata != _departureLocationData.value()?.iata }.map { CityItem.from(it) } }
         .collect { _destinationSuggestionsData.emit(it) }
     }
 
@@ -99,7 +100,7 @@ class MainViewModel @Inject constructor(
   fun onSearchClick() {
     router.forward(
       MAP_FRAGMENT,
-      _departureLocationData.replayCache[0] to _destinationLocationData.replayCache[0]
+      _departureLocationData.value() to _destinationLocationData.value()
     )
   }
 }
