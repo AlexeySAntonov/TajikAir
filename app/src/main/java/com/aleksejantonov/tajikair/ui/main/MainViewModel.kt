@@ -3,6 +3,7 @@ package com.aleksejantonov.tajikair.ui.main
 import androidx.lifecycle.viewModelScope
 import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.di.qualifiers.DispatcherDefault
+import com.aleksejantonov.tajikair.di.qualifiers.DispatcherIO
 import com.aleksejantonov.tajikair.model.CitiesRepository
 import com.aleksejantonov.tajikair.navigation.AppRouter
 import com.aleksejantonov.tajikair.ui.Screens.*
@@ -18,6 +19,7 @@ class MainViewModel @Inject constructor(
   private val router: AppRouter,
   private val repository: CitiesRepository,
   @DispatcherDefault private val dispatcherDefault: CoroutineDispatcher,
+  @DispatcherIO private val dispatcherIO: CoroutineDispatcher,
 ) : BaseViewModel() {
 
   private val _departureLocationData = MutableSharedFlow<City>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -50,7 +52,7 @@ class MainViewModel @Inject constructor(
       }
     }
 
-    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+    viewModelScope.launch(dispatcherIO + exceptionHandler) {
       _departureQueryData
         .debounce(400L)
         .flatMapLatest { query -> repository.searchCities(query) }
@@ -58,7 +60,7 @@ class MainViewModel @Inject constructor(
         .collect { _departureSuggestionsData.emit(it) }
     }
 
-    viewModelScope.launch(dispatcherDefault + exceptionHandler) {
+    viewModelScope.launch(dispatcherIO + exceptionHandler) {
       _destinationQueryData
         .debounce(400L)
         .flatMapLatest { query -> repository.searchCities(query) }
