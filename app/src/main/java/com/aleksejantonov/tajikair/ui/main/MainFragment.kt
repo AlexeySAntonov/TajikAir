@@ -9,7 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import com.aleksejantonov.tajikair.databinding.FragmentMainBinding
 import com.aleksejantonov.tajikair.di.DI
 import com.aleksejantonov.tajikair.ui.base.BaseFragment
-import com.aleksejantonov.tajikair.ui.main.CityItem.Companion.toCity
+import com.aleksejantonov.tajikair.ui.main.search.CityItem
+import com.aleksejantonov.tajikair.ui.main.search.CityItem.Companion.toCity
+import com.aleksejantonov.tajikair.ui.main.search.SuggestionsSearchView
 import com.aleksejantonov.tajikair.util.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

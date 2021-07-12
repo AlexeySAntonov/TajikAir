@@ -1,4 +1,4 @@
-package com.aleksejantonov.tajikair.ui.main
+package com.aleksejantonov.tajikair.ui.main.search
 
 import androidx.recyclerview.widget.DiffUtil
 

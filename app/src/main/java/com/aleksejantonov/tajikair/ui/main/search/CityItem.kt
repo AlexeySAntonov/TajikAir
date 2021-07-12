@@ -1,4 +1,4 @@
-package com.aleksejantonov.tajikair.ui.main
+package com.aleksejantonov.tajikair.ui.main.search
 
 import com.aleksejantonov.tajikair.api.entity.City
 import com.aleksejantonov.tajikair.api.entity.LatLng

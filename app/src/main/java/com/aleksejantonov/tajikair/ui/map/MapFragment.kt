@@ -30,6 +30,7 @@ class MapFragment : BaseFragment() {
   private val binding get() = _binding as FragmentMapBinding
 
   private val viewModel by viewModels<MapViewModel> { DI.appComponent.viewModelFactory() }
+  private val flyComputationViewModel by viewModels<FlyComputationViewModel> { DI.appComponent.viewModelFactory() }
 
   private val depCity by lazy { requireNotNull(arguments?.getParcelable(DEPARTURE)) as City }
   private val desCity by lazy { requireNotNull(arguments?.getParcelable(DESTINATION)) as City }
@@ -61,12 +62,12 @@ class MapFragment : BaseFragment() {
 
         if (abs(depLatLng.longitude - destLatLng.longitude) <= MAX_LONGITUDE) {
           // Simple route without map breaks
-          val pivotPoints = getSimpleRoutePivotPoints(depLatLng, destLatLng)
+          val pivotPoints = flyComputationViewModel.getSimpleRoutePivotPoints(depLatLng, destLatLng)
           renderRoute(map, pivotPoints)
           renderPivotPoints(map, pivotPoints)
           startPlaneAnimation(map, pivotPoints)
         } else {
-          val (pivotPointsA, pivotPointsB) = getComplexRoutePivotPoints(depLatLng, destLatLng)
+          val (pivotPointsA, pivotPointsB) = flyComputationViewModel.getComplexRoutePivotPoints(depLatLng, destLatLng)
           renderRoute(map, pivotPointsA)
           renderRoute(map, pivotPointsB)
           startPlaneAnimation(map, pivotPointsA, pivotPointsB)
@@ -98,7 +99,7 @@ class MapFragment : BaseFragment() {
   }
 
   private fun renderRoute(map: GoogleMap, pivotPoints: Array<Array<Double>>) {
-    val routeCoordinates = getRouteCoordinates(pivotPoints).map { LatLng(it.latitude, it.longitude) }
+    val routeCoordinates = flyComputationViewModel.getRouteCoordinates(pivotPoints).map { LatLng(it.latitude, it.longitude) }
     val polyline = map.addPolyline(
       PolylineOptions()
         .add(*routeCoordinates.toTypedArray())
@@ -142,13 +143,13 @@ class MapFragment : BaseFragment() {
     animatorSet?.cancel()
     animatorSet = AnimatorSet().apply {
       pivotPointsB?.let {
-        val (durationA, durationB) = complexRoutePathsDurations(pivotPointsA, it)
+        val (durationA, durationB) = flyComputationViewModel.complexRoutePathsDurations(pivotPointsA, it)
         playSequentially(
-          getCurvePlaneAnimator(pivotPointsA) { latLng, angle -> renderPlane(map, latLng, angle) }.apply { duration = durationA },
-          getCurvePlaneAnimator(it) { latLng, angle -> renderPlane(map, latLng, angle) }.apply { duration = durationB }
+          flyComputationViewModel.getCurvePlaneAnimator(pivotPointsA) { latLng, angle -> renderPlane(map, latLng, angle) }.apply { duration = durationA },
+          flyComputationViewModel.getCurvePlaneAnimator(it) { latLng, angle -> renderPlane(map, latLng, angle) }.apply { duration = durationB }
         )
       } ?: run {
-        play(getCurvePlaneAnimator(pivotPointsA) { latLng, angle -> renderPlane(map, latLng, angle) })
+        play(flyComputationViewModel.getCurvePlaneAnimator(pivotPointsA) { latLng, angle -> renderPlane(map, latLng, angle) })
         duration = WHOLE_PATH_ANIMATION_DURATION
       }
       interpolator = LinearInterpolator()

@@ -8,6 +8,7 @@ import com.aleksejantonov.tajikair.model.CitiesRepository
 import com.aleksejantonov.tajikair.navigation.AppRouter
 import com.aleksejantonov.tajikair.ui.Screens.*
 import com.aleksejantonov.tajikair.ui.base.BaseViewModel
+import com.aleksejantonov.tajikair.ui.main.search.CityItem
 import com.aleksejantonov.tajikair.util.value
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.BufferOverflow

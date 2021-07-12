@@ -7,13 +7,13 @@
     android:background="@color/appBlue"
     tools:context=".ui.SingleActivity">
 
-  <com.aleksejantonov.tajikair.ui.main.SuggestionsSearchView
+  <com.aleksejantonov.tajikair.ui.main.search.SuggestionsSearchView
       android:id="@+id/departureSearch"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:elevation="4dp" />
 
-  <com.aleksejantonov.tajikair.ui.main.SuggestionsSearchView
+  <com.aleksejantonov.tajikair.ui.main.search.SuggestionsSearchView
       android:id="@+id/destinationSearch"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
