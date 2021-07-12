@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      GROCERY_KEY_ALIAS: ${{ secrets.TAJIK_AIR_KEY_ALIAS }}
-      GROCERY_KEY_PASSWORD: ${{ secrets.TAJIK_AIR_KEY_PASSWORD }}
-      GROCERY_KEYSTORE_PASSWORD: ${{ secrets.TAJIK_AIR_KEYSTORE_PASSWORD }}
-      GROCERY_KEYSTORE_PATH: ${{ secrets.TAJIK_AIR_KEYSTORE_PATH }}
+      TAJIK_AIR_KEY_ALIAS: ${{ secrets.TAJIK_AIR_KEY_ALIAS }}
+      TAJIK_AIR_KEY_PASSWORD: ${{ secrets.TAJIK_AIR_KEY_PASSWORD }}
+      TAJIK_AIR_KEYSTORE_PASSWORD: ${{ secrets.TAJIK_AIR_KEYSTORE_PASSWORD }}
+      TAJIK_AIR_KEYSTORE_PATH: ${{ secrets.TAJIK_AIR_KEYSTORE_PATH }}
 
     steps:
       ## Checkout repository ###
