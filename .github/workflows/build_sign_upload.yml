@@ -15,6 +15,7 @@ jobs:
       TAJIK_AIR_KEY_PASSWORD: ${{ secrets.TAJIK_AIR_KEY_PASSWORD }}
       TAJIK_AIR_KEYSTORE_PASSWORD: ${{ secrets.TAJIK_AIR_KEYSTORE_PASSWORD }}
       TAJIK_AIR_KEYSTORE_PATH: ${{ secrets.TAJIK_AIR_KEYSTORE_PATH }}
+      MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
 
     steps:
       ## Checkout repository ###
