@@ -3,7 +3,6 @@ plugins {
   id("kotlin-android")
   id("kotlin-kapt")
   id("com.google.gms.google-services")
-  id("com.google.secrets_gradle_plugin") version "0.6"
 }
 
 android {
@@ -24,14 +23,16 @@ android {
     targetSdkVersion(Versions.targetSdk)
     versionCode = 1
     versionName = "1.0"
-
+    manifestPlaceholders[MAPS_API_KEY] = System.getenv()[MAPS_API_KEY] ?: project.property(MAPS_API_KEY) as String
   }
 
   buildTypes {
     getByName("release") {
       isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs.getByName("release")
+      if (System.getenv()["CI"] == null) {
+        signingConfig = signingConfigs.getByName("release")
+      }
     }
     getByName("debug") {
       isMinifyEnabled = false
